@@ -226,4 +226,4 @@ Aunque la aplicación tiene una funcionalidad sencilla, sirve como base para com
 ---
 
 ## Enlace directo
-**Arquitectura del proyecto:** [Diagrama de la arquitectura del proyecto](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica02/index.html)
+**Arquitectura del proyecto:** [Diagrama de la arquitectura del proyecto](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica02/arquitectura/)
