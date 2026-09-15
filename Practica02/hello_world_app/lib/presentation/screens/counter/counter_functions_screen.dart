@@ -22,53 +22,65 @@ class _CounterFunctionsScreenState extends State<CounterFunctionsScreen> {
               setState(() {
                 clickCounter = 0;
               });
-            }, 
+            },
           ),
         ],
       ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('$clickCounter',
-                style: const TextStyle( 
-                  fontSize: 160, fontWeight: FontWeight.w100 )),
-              Text('Click${clickCounter == 1 ? '' : 's' }', style: TextStyle( fontSize: 25 ))
-            ],
-          ),
-        ),
-        floatingActionButton: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CustomButton(
-              icon: Icons.refresh_rounded,
-              onPressed: () {
-                setState(() {
-                  clickCounter = 0;
-                });
-              },
+            Text(
+              '$clickCounter',
+              style: TextStyle(
+                fontSize: 160,
+                fontWeight: FontWeight.w100,
+                color: clickCounter < 0
+                    ? Colors.red
+                    : clickCounter == 0
+                        ? Colors.blue
+                        : Colors.green,
+              ),
             ),
-            const SizedBox(height: 15,),
-            CustomButton(
-              icon: Icons.plus_one,
-              onPressed: () {
-                setState(() {
-                  clickCounter ++;
-                });
-              },
-            ),
-            const SizedBox(height: 15,),
-            CustomButton(
-              icon: Icons.exposure_minus_1_outlined,
-              onPressed: () {
-                setState(() {
-                  clickCounter --;
-                });
-              },
-            ),
+            Text(
+              'Click${clickCounter == 1 || clickCounter == -1 ? '' : 's'}',
+              style: TextStyle(fontSize: 25),
+            )
           ],
-        )
-      );
+        ),
+      ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          CustomButton(
+            icon: Icons.refresh_rounded,
+            onPressed: () {
+              setState(() {
+                clickCounter = 0;
+              });
+            },
+          ),
+          const SizedBox(height: 15),
+          CustomButton(
+            icon: Icons.plus_one,
+            onPressed: () {
+              setState(() {
+                clickCounter++;
+              });
+            },
+          ),
+          const SizedBox(height: 15),
+          CustomButton(
+            icon: Icons.exposure_minus_1_outlined,
+            onPressed: () {
+              setState(() {
+                clickCounter--;
+              });
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -79,7 +91,7 @@ class CustomButton extends StatelessWidget {
   const CustomButton({
     super.key,
     required this.icon,
-    this.onPressed
+    this.onPressed,
   });
 
   @override
