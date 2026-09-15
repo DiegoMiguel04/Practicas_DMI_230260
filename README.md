@@ -8,5 +8,5 @@ Periodo: Septiembre - Diciembre 2026
 ## Tabla de Prácticas de la Materia
 |No.|Nombre|Descripción|Potenciador|Estatus|
 |---|---|---|---|---|
-|1.|Metodologia de Evaluación de la Materia|Transcribir en libreta y comprender la metodlogía y fechas de evaluación de la asignatura|5|Finalizada|
-|2.|Mi primer Aplicación Móvil con Flutter|Codificar la app móvil en el framework de Flutter manejando Statless y Stateless Widgets|20|Finalizada|
+|1.|Metodologia de Evaluación de la Materia|Transcribir en libreta y comprender la metodlogía y fechas de evaluación de la asignatura|5|Finalizada ✅|
+|2.|Mi primer Aplicación Móvil con Flutter|[Codificar la app móvil en el framework de Flutter manejando Statless y Stateless Widgets](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica02/index.html)|20|Finalizada ✅|
