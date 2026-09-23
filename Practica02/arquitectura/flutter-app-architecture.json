@@ -1,0 +1,232 @@
+{
+    "schema_version":  1,
+    "diagram_type":  "architecture",
+    "meta":  {
+                 "title":  "Arquitectura de la aplicación Flutter",
+                 "quality_profile":  "showcase",
+                 "viewBox":  [
+                                 1210,
+                                 640
+                             ],
+                 "repository":  {
+                                    "url":  "https://github.com/DiegoMiguel04/Practicas_DMI_230260",
+                                    "provider":  "github",
+                                    "revision":  "f6120b1c1914460f5b6a1d054546ed89a3caa1c1"
+                                }
+             },
+    "components":  [
+                       {
+                           "id":  "entry",
+                           "type":  "frontend",
+                           "label":  "Inicio de Flutter",
+                           "sublabel":  "main() · runApp",
+                           "pos":  [
+                                       40,
+                                       210
+                                   ],
+                           "size":  [
+                                        155,
+                                        84
+                                    ],
+                           "sources":  [
+                                           {
+                                               "path":  "Practica02/hello_world_app/lib/main.dart",
+                                               "label":  "Abrir main.dart"
+                                           }
+                                       ]
+                       },
+                       {
+                           "id":  "app",
+                           "type":  "frontend",
+                           "label":  "MyApp · MaterialApp",
+                           "sublabel":  "Tema Material 3",
+                           "pos":  [
+                                       235,
+                                       210
+                                   ],
+                           "size":  [
+                                        195,
+                                        84
+                                    ],
+                           "sources":  [
+                                           {
+                                               "path":  "Practica02/hello_world_app/lib/main.dart",
+                                               "label":  "Abrir main.dart"
+                                           }
+                                       ]
+                       },
+                       {
+                           "id":  "home",
+                           "type":  "frontend",
+                           "label":  "CounterFunctionsScreen",
+                           "sublabel":  "Pantalla principal (home)",
+                           "pos":  [
+                                       470,
+                                       210
+                                   ],
+                           "size":  [
+                                        235,
+                                        84
+                                    ],
+                           "sources":  [
+                                           {
+                                               "path":  "Practica02/hello_world_app/lib/presentation/screens/counter/counter_functions_screen.dart",
+                                               "label":  "Abrir pantalla"
+                                           }
+                                       ]
+                       },
+                       {
+                           "id":  "scaffold",
+                           "type":  "frontend",
+                           "label":  "Scaffold · AppBar",
+                           "sublabel":  "Estructura y acción de reinicio",
+                           "pos":  [
+                                       50,
+                                       430
+                                   ],
+                           "size":  [
+                                        250,
+                                        84
+                                    ],
+                           "sources":  [
+                                           {
+                                               "path":  "Practica02/hello_world_app/lib/presentation/screens/counter/counter_functions_screen.dart",
+                                               "label":  "Abrir Scaffold y AppBar"
+                                           }
+                                       ]
+                       },
+                       {
+                           "id":  "state",
+                           "type":  "backend",
+                           "label":  "Estado clickCounter",
+                           "sublabel":  "setState · reinicio · +1 · −1",
+                           "pos":  [
+                                       740,
+                                       210
+                                   ],
+                           "size":  [
+                                        195,
+                                        84
+                                    ],
+                           "sources":  [
+                                           {
+                                               "path":  "Practica02/hello_world_app/lib/presentation/screens/counter/counter_functions_screen.dart",
+                                               "label":  "Abrir estado y acciones"
+                                           }
+                                       ]
+                       },
+                       {
+                           "id":  "display",
+                           "type":  "frontend",
+                           "label":  "Widgets de visualización",
+                           "sublabel":  "Center · Column · Text · color",
+                           "pos":  [
+                                       970,
+                                       210
+                                   ],
+                           "size":  [
+                                        200,
+                                        84
+                                    ],
+                           "sources":  [
+                                           {
+                                               "path":  "Practica02/hello_world_app/lib/presentation/screens/counter/counter_functions_screen.dart",
+                                               "label":  "Abrir widgets de vista"
+                                           }
+                                       ]
+                       },
+                       {
+                           "id":  "buttons",
+                           "type":  "frontend",
+                           "label":  "CustomButton",
+                           "sublabel":  "FloatingActionButton · reinicio / +1 / −1",
+                           "pos":  [
+                                       740,
+                                       430
+                                   ],
+                           "size":  [
+                                        250,
+                                        84
+                                    ],
+                           "sources":  [
+                                           {
+                                               "path":  "Practica02/hello_world_app/lib/presentation/screens/counter/counter_functions_screen.dart",
+                                               "label":  "Abrir CustomButton"
+                                           }
+                                       ]
+                       },
+                       {
+                           "id":  "alternate",
+                           "type":  "frontend",
+                           "label":  "CounterScreen",
+                           "sublabel":  "Implementada · no es la pantalla activa",
+                           "pos":  [
+                                       1010,
+                                       430
+                                   ],
+                           "size":  [
+                                        200,
+                                        84
+                                    ],
+                           "sources":  [
+                                           {
+                                               "path":  "Practica02/hello_world_app/lib/presentation/screens/counter/counter_screen.dart",
+                                               "label":  "Abrir pantalla alternativa"
+                                           }
+                                       ]
+                       }
+                   ],
+    "connections":  [
+                        {
+                            "label":  "runApp",
+                            "from":  "entry",
+                            "to":  "app",
+                            "id":  "launch"
+                        },
+                        {
+                            "label":  "home",
+                            "from":  "app",
+                            "to":  "home",
+                            "id":  "home"
+                        },
+                        {
+                            "label":  "estado",
+                            "from":  "home",
+                            "to":  "state",
+                            "id":  "setstate"
+                        },
+                        {
+                            "label":  "reconstruye UI",
+                            "from":  "state",
+                            "to":  "display",
+                            "id":  "render",
+                            "labelDy":  -42
+                        },
+                        {
+                            "id":  "actions",
+                            "label":  "setState",
+                            "toSide":  "bottom",
+                            "to":  "state",
+                            "from":  "buttons",
+                            "fromSide":  "top"
+                        }
+                    ],
+    "cards":  [
+                  {
+                      "dot":  "cyan",
+                      "title":  "Flujo de interacción",
+                      "items":  [
+                                    "Los controles actualizan clickCounter mediante setState.",
+                                    "El número se muestra rojo si es negativo, azul en cero y verde si es positivo."
+                                ]
+                  },
+                  {
+                      "dot":  "violet",
+                      "title":  "Archivos fuente",
+                      "items":  [
+                                    "Cada componente abre su archivo Dart en GitHub.",
+                                    "Los enlaces usan la ruta Practica02/hello_world_app/lib/ dentro del repositorio."
+                                ]
+                  }
+              ]
+}
