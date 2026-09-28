@@ -44,7 +44,7 @@ class _CounterFunctionsScreenState extends State<CounterFunctionsScreen> {
             ),
             Text(
               'Click${clickCounter == 1 || clickCounter == -1 ? '' : 's'}',
-              style: TextStyle(fontSize: 25),
+              style: TextStyle(fontSize: 25, fontFamily: 'MiFuente'),
             )
           ],
         ),

@@ -188,6 +188,10 @@ La aplicación funciona correctamente como un contador interactivo y permite com
 
 ---
 
+**Fuente personalizada utilizada:** SourceCodePro-VariableFont_wght
+
+---
+
 ## Conceptos aprendidos
 
 Con esta práctica se reforzaron los siguientes conceptos:
