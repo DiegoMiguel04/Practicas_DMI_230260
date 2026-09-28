@@ -9,4 +9,4 @@ Periodo: Septiembre - Diciembre 2026
 |No.|Nombre|Descripción|Potenciador|Estatus|
 |---|---|---|---|---|
 |1.|Metodologia de Evaluación de la Materia|Transcribir en libreta y comprender la metodlogía y fechas de evaluación de la asignatura|5|Finalizada ✅|
-|2.|Mi primer Aplicación Móvil con Flutter|[Codificar la app móvil en el framework de Flutter manejando Statless y Stateless Widgets](https://github.com/DiegoMiguel04/Practicas_DMI_230260/blob/master/Practica02/README.md)|20|Finalizada ✅|
+|2.|[Mi primer Aplicación Móvil con Flutter](https://github.com/DiegoMiguel04/Practicas_DMI_230260/blob/master/Practica02/README.md)|Codificar la app móvil en el framework de Flutter manejando Statless y Stateless Widgets|20|Finalizada ✅|
