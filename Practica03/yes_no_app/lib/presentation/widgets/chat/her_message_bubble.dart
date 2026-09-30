@@ -1,30 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:yes_no_app/domain/entities/message.dart';
 
 class HerMessageBubble extends StatelessWidget {
-  const HerMessageBubble({super.key});
+  const HerMessageBubble({super.key, required this.message});
+
+  final Message message;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final time =
+        '${message.sentAt.hour.toString().padLeft(2, '0')}:${message.sentAt.minute.toString().padLeft(2, '0')}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          decoration: BoxDecoration(
-              color: colors.secondary, borderRadius: BorderRadius.circular(20)),
-          child: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Text(
-              'Hola Mundo',
-              style: TextStyle(color: Colors.white),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: colors.secondary,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        message.text,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      time,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontSize: 11, color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
-        const SizedBox(height: 5),
-
-        _ImageBubble(),
-
+        if (message.imageUrl case final imageUrl?) ...[
+          const SizedBox(height: 5),
+          _ImageBubble(imageUrl: imageUrl),
+        ],
         const SizedBox(height: 10),
       ],
     );
@@ -32,27 +60,35 @@ class HerMessageBubble extends StatelessWidget {
 }
 
 class _ImageBubble extends StatelessWidget {
+  const _ImageBubble({required this.imageUrl});
+
+  final String imageUrl;
+
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final width = MediaQuery.of(context).size.width * 0.7;
 
     return ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Image.network(
-          'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/1b41b228-ad4a-4cd5-b05f-8c946e715b26/dgypmoc-1800828f-0aef-4619-a5f8-50d746dd2c8d.gif?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi8xYjQxYjIyOC1hZDRhLTRjZDUtYjA1Zi04Yzk0NmU3MTViMjYvZGd5cG1vYy0xODAwODI4Zi0wYWVmLTQ2MTktYTVmOC01MGQ3NDZkZDJjOGQuZ2lmIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.cWCYPhqExNAsCB2bH7Yz3liP20snALbBBp7pxW4VwT8',
-          width: size.width * 0.7,
+      borderRadius: BorderRadius.circular(20),
+      child: Image.network(
+        imageUrl,
+        width: width,
+        height: 150,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return SizedBox(
+            width: width,
+            height: 150,
+            child: const Center(child: Text('Cargando imagen...')),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) => SizedBox(
+          width: width,
           height: 150,
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-
-            return Container(
-              width: size.width * 0.7,
-              height: 150,
-              padding: const EdgeInsets.symmetric( horizontal: 10, vertical: 5),
-              child: const Text('El gato está enviando una imagen'),
-            );
-          },
-        ));
+          child: const Center(child: Text('No se pudo cargar el GIF')),
+        ),
+      ),
+    );
   }
 }

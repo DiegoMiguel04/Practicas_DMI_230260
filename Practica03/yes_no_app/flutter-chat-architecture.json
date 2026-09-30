@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Arquitectura de Yes No App",
+    "output": "flutter-chat-architecture.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/DiegoMiguel04/Practicas_DMI_230260",
+      "provider": "github",
+      "revision": "aa9443e3d42b86093d2fc297efcc5db0992b3d39"
+    },
+    "views": [
+      {
+        "id": "chat-flow",
+        "label": "Flujo del chat",
+        "focus": ["app", "chat-ui", "provider", "message", "bubbles"],
+        "note": "Sigue el mensaje desde la interfaz hasta su representación en el chat."
+      },
+      {
+        "id": "api-answer",
+        "label": "Respuesta de yesno.wtf",
+        "focus": ["chat-ui", "provider", "yesno-api", "message", "bubbles"],
+        "note": "El proveedor consulta yesno.wtf y publica la respuesta en la conversación."
+      },
+      {
+        "id": "local-maybe",
+        "label": "Respuesta local Tal vez",
+        "focus": ["chat-ui", "provider", "message", "bubbles"],
+        "note": "En el 20% de los casos, ChatProvider responde Tal vez y adjunta un GIF local a la lógica de presentación."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "app",
+      "type": "frontend",
+      "label": "Aplicación Flutter",
+      "sublabel": "Punto de entrada y providers",
+      "tag": "Android / Flutter",
+      "pos": [50, 130],
+      "size": [165, 72],
+      "sources": [
+        { "path": "Practica03/yes_no_app/lib/main.dart", "label": "main.dart" },
+        { "path": "Practica03/yes_no_app/android/app/src/main/AndroidManifest.xml", "label": "Android" }
+      ]
+    },
+    {
+      "id": "chat-ui",
+      "type": "frontend",
+      "label": "Interfaz del chat",
+      "sublabel": "ChatScreen + campo de mensaje",
+      "tag": "Entrada y lista",
+      "pos": [300, 130],
+      "size": [190, 72],
+      "sources": [
+        { "path": "Practica03/yes_no_app/lib/presentation/screens/chat/chat_screen.dart", "label": "ChatScreen" },
+        { "path": "Practica03/yes_no_app/lib/presentation/widgets/shared/message_field_box.dart", "label": "Campo" }
+      ]
+    },
+    {
+      "id": "provider",
+      "type": "backend",
+      "label": "ChatProvider",
+      "sublabel": "Estado y lógica de respuesta",
+      "tag": "80% API · 20% local",
+      "pos": [585, 130],
+      "size": [190, 72],
+      "sources": [
+        { "path": "Practica03/yes_no_app/lib/domain/entities/chat_provider.dart", "label": "ChatProvider" }
+      ]
+    },
+    {
+      "id": "yesno-api",
+      "type": "external",
+      "label": "yesno.wtf",
+      "sublabel": "GET https://yesno.wtf/api",
+      "tag": "Respuesta aleatoria Sí / No",
+      "pos": [890, 130],
+      "size": [205, 72],
+      "sources": [
+        { "path": "Practica03/yes_no_app/lib/domain/entities/chat_provider.dart", "label": "Solicitud HTTP" }
+      ]
+    },
+    {
+      "id": "message",
+      "type": "backend",
+      "label": "Message",
+      "sublabel": "Texto · imagen · emisor · hora",
+      "tag": "Modelo de dominio",
+      "pos": [585, 320],
+      "size": [190, 72],
+      "sources": [
+        { "path": "Practica03/yes_no_app/lib/domain/entities/message.dart", "label": "Modelo" }
+      ]
+    },
+    {
+      "id": "bubbles",
+      "type": "frontend",
+      "label": "Burbujas de chat",
+      "sublabel": "Mensajes, hora e imagen GIF",
+      "tag": "Presentación",
+      "pos": [890, 320],
+      "size": [205, 72],
+      "sources": [
+        { "path": "Practica03/yes_no_app/lib/presentation/widgets/chat/my_message_bubble.dart", "label": "Mi mensaje" },
+        { "path": "Practica03/yes_no_app/lib/presentation/widgets/chat/her_message_bubble.dart", "label": "Respuesta" }
+      ]
+    }
+  ],
+  "connections": [
+    { "id": "app-to-ui", "from": "app", "to": "chat-ui", "label": "inicia ChatScreen", "labelDy": -30 },
+    { "id": "ui-to-provider", "from": "chat-ui", "to": "provider", "label": "envía texto · notifica cambios", "variant": "emphasis", "labelDy": -30 },
+    { "id": "provider-to-api", "from": "provider", "to": "yesno-api", "label": "80% GET · JSON + GIF", "variant": "emphasis", "labelDy": -30 },
+    { "id": "provider-to-message", "from": "provider", "to": "message", "label": "crea Message", "fromSide": "bottom", "toSide": "top", "labelDy": 35 },
+    { "id": "message-to-bubbles", "from": "message", "to": "bubbles", "label": "texto + GIF", "labelDy": 28 }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Flujo principal",
+      "items": [
+        "ChatScreen envía el texto a ChatProvider y observa el estado con Provider.",
+        "Los mensajes se convierten en burbujas con emisor, hora y contenido."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Respuesta de API",
+      "items": [
+        "El 80% de las veces ChatProvider consulta yesno.wtf por HTTPS.",
+        "La API devuelve la respuesta y el URL del GIF para mostrar en el chat."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Respuesta local",
+      "items": [
+        "El 20% de las veces la app responde Tal vez sin llamar a la API.",
+        "ChatProvider adjunta un GIF a la respuesta local."
+      ]
+    }
+  ]
+}
