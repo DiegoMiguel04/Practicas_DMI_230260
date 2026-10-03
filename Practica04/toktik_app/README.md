@@ -1,17 +1,15 @@
-# toktik_app
+# TokTik
 
-A new Flutter project.
+La app obtiene los videos desde una carpeta de Google Drive mediante Drive API v3.
 
-## Getting Started
+## Configuración de Google Drive
 
-This project is a starting point for a Flutter application.
+1. Crea o selecciona un proyecto en Google Cloud y habilita **Google Drive API**.
+2. Crea una API key.
+3. Comparte la carpeta y sus videos con acceso **Cualquier persona con el enlace: Lector**.
+4. Copia el ID de la carpeta desde su URL: `https://drive.google.com/drive/folders/ID_DE_CARPETA`.
+5. Edita `lib/config/google_drive_config.dart` y reemplaza `folderId` y `apiKey`.
+6. Ejecuta `flutter run` normalmente; no necesitas pasar argumentos adicionales.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Se listan los archivos cuyo tipo MIME comienza con `video/`, ordenados por nombre.
+La API key está escrita directamente en el código para esta práctica.
