@@ -75,7 +75,10 @@ class GoogleDriveVideoDataSource {
             'key': apiKey,
           });
           return VideoPost(
+            id: id,
             caption: metadata?['name'] as String? ?? filename,
+            description: metadata?['description'] as String? ??
+                'Video compartido desde Google Drive.',
             videoUrl: url.toString(),
             likes: metadata?['likes'] as int? ?? 0,
             views: metadata?['views'] as int? ?? 0,

@@ -2,6 +2,8 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:toktik_app/config/helpers/human_formats.dart';
 import 'package:toktik_app/domain/entities/video_post.dart';
+import 'package:provider/provider.dart';
+import 'package:toktik_app/presentation/providers/discover_provider.dart';
 
 
 class VideoButtons extends StatelessWidget {
@@ -15,11 +17,18 @@ class VideoButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<DiscoverProvider>();
+    final isLiked = provider.likedVideoIds.contains(video.id);
     return Column(
       children: [
-        _CustomIconButton( value: video.likes, iconColor: Colors.red, iconData: Icons.favorite, ),
+        _CustomIconButton(
+          value: video.likes,
+          iconColor: isLiked ? Colors.red : Colors.white,
+          iconData: isLiked ? Icons.favorite : Icons.favorite_border,
+          onPressed: () => provider.toggleLike(video.id),
+        ),
         const SizedBox( height: 20 ),
-        _CustomIconButton( value: video.views, iconData: Icons.remove_red_eye_outlined ),
+        _CustomIconButton(value: video.views, iconData: Icons.remove_red_eye_outlined),
 
         const SizedBox( height: 20 ),
         SpinPerfect(
@@ -38,11 +47,13 @@ class _CustomIconButton extends StatelessWidget {
   final int value;
   final IconData iconData;
   final Color? color;
+  final VoidCallback? onPressed;
 
   const _CustomIconButton({
     required this.value, 
     required this.iconData, 
-    iconColor
+    Color? iconColor,
+    this.onPressed,
   }): color = iconColor ?? Colors.white;
 
   @override
@@ -50,7 +61,7 @@ class _CustomIconButton extends StatelessWidget {
     return Column(
       children: [
         IconButton(
-          onPressed: () {}, 
+          onPressed: onPressed,
           icon: Icon( iconData, color: color, size: 30, )),
 
         if ( value > 0 )
