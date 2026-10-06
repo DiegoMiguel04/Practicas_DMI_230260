@@ -63,7 +63,6 @@ class _VideoScrollableViewState extends State<VideoScrollableView> {
                 description: videoPost.description,
                 videoUrl: videoPost.videoUrl,
                 httpHeaders: videoPost.httpHeaders,
-                isInitialVideo: index == 0,
               ),
             ),
             Positioned(

@@ -6,7 +6,6 @@ import 'package:toktik_app/infrastructure/datasources/video_stats_local_storage.
 
 class DiscoverProvider extends ChangeNotifier {
   bool initialLoading = true;
-  bool initialVideoReady = false;
   String? errorMessage;
   List<VideoPost> videos = [];
   final Set<String> likedVideoIds = {};
@@ -50,12 +49,6 @@ class DiscoverProvider extends ChangeNotifier {
       'viewed': true,
     };
     await _saveStats(video);
-    notifyListeners();
-  }
-
-  void markInitialVideoReady() {
-    if (initialVideoReady) return;
-    initialVideoReady = true;
     notifyListeners();
   }
 

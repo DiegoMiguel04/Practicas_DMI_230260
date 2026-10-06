@@ -1,6 +1,6 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:toktik_app/presentation/providers/discover_provider.dart';
 import 'package:toktik_app/presentation/widgets/video/video_background.dart';
 import 'package:video_player/video_player.dart';
 
@@ -9,7 +9,6 @@ class FullScreenPlayer extends StatefulWidget {
   final String caption;
   final String description;
   final Map<String, String> httpHeaders;
-  final bool isInitialVideo;
 
   const FullScreenPlayer({
     super.key,
@@ -17,7 +16,6 @@ class FullScreenPlayer extends StatefulWidget {
     required this.caption,
     required this.description,
     this.httpHeaders = const {},
-    this.isInitialVideo = false,
   });
 
   @override
@@ -27,6 +25,9 @@ class FullScreenPlayer extends StatefulWidget {
 class _FullScreenPlayerState extends State<FullScreenPlayer> {
   late final VideoPlayerController controller;
   late final Future<void> _initialization;
+  bool _isPaused = false;
+  bool _showPlayIcon = false;
+  Timer? _playIconTimer;
 
   @override
   void initState() {
@@ -37,22 +38,12 @@ class _FullScreenPlayerState extends State<FullScreenPlayer> {
     )
       ..setVolume(0)
       ..setLooping(true);
-    _initialization = controller.initialize().then((_) async {
-      await controller.play();
-      _markInitialVideoReady();
-    }).catchError((Object error) {
-      _markInitialVideoReady();
-      throw error;
-    });
-  }
-
-  void _markInitialVideoReady() {
-    if (!widget.isInitialVideo || !mounted) return;
-    context.read<DiscoverProvider>().markInitialVideoReady();
+    _initialization = controller.initialize().then((_) => controller.play());
   }
 
   @override
   void dispose() {
+    _playIconTimer?.cancel();
     controller.dispose();
     super.dispose();
   }
@@ -71,10 +62,23 @@ class _FullScreenPlayerState extends State<FullScreenPlayer> {
 
         return GestureDetector(
           onTap: () {
-            if (controller.value.isPlaying) {
+            if (!_isPaused) {
               controller.pause();
+              _playIconTimer?.cancel();
+              setState(() {
+                _isPaused = true;
+                _showPlayIcon = false;
+              });
             } else {
               controller.play();
+              setState(() {
+                _isPaused = false;
+                _showPlayIcon = true;
+              });
+              _playIconTimer?.cancel();
+              _playIconTimer = Timer(const Duration(milliseconds: 800), () {
+                if (mounted) setState(() => _showPlayIcon = false);
+              });
             }
           },
           child: AspectRatio(
@@ -83,6 +87,41 @@ class _FullScreenPlayerState extends State<FullScreenPlayer> {
               children: [
                 VideoPlayer(controller),
                 VideoBackground(stops: [0.8, 1.0]),
+                Center(
+                  child: IgnorePointer(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 220),
+                      reverseDuration: const Duration(milliseconds: 160),
+                      switchInCurve: Curves.easeOutBack,
+                      switchOutCurve: Curves.easeIn,
+                      transitionBuilder: (child, animation) => FadeTransition(
+                        opacity: animation,
+                        child: ScaleTransition(scale: animation, child: child),
+                      ),
+                      child: _isPaused
+                          ? const Icon(
+                              Icons.play_arrow_rounded,
+                              key: ValueKey('paused-play-icon'),
+                              color: Colors.white,
+                              size: 88,
+                              shadows: [
+                                Shadow(color: Colors.black54, blurRadius: 12),
+                              ],
+                            )
+                          : _showPlayIcon
+                              ? const Icon(
+                                  Icons.pause_rounded,
+                                  key: ValueKey('playing-pause-icon'),
+                                  color: Colors.white,
+                                  size: 88,
+                                  shadows: [
+                                    Shadow(color: Colors.black54, blurRadius: 12),
+                                  ],
+                                )
+                              : const SizedBox.shrink(key: ValueKey('no-control-icon')),
+                    ),
+                  ),
+                ),
                 Positioned(
                   bottom: 50,
                   left: 20,

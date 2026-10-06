@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toktik_app/domain/entities/video_post.dart';
 import 'package:toktik_app/presentation/providers/discover_provider.dart';
-import 'package:toktik_app/presentation/screens/splash_screen.dart';
 import 'package:toktik_app/presentation/widgets/shared/video_scrollable_view.dart';
 
 enum _FeedSection { forYou, discover, favorites }
@@ -74,9 +73,6 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                     ),
                   ],
                 ),
-          if (provider.initialLoading ||
-              (provider.videos.isNotEmpty && !provider.initialVideoReady))
-            const SplashScreen(),
         ],
       ),
     );

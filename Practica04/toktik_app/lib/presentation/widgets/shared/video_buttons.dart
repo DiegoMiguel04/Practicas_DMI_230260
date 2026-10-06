@@ -62,7 +62,22 @@ class _CustomIconButton extends StatelessWidget {
       children: [
         IconButton(
           onPressed: onPressed,
-          icon: Icon( iconData, color: color, size: 30, )),
+          icon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            switchInCurve: Curves.easeOutBack,
+            switchOutCurve: Curves.easeIn,
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(scale: animation, child: child),
+            ),
+            child: Icon(
+              iconData,
+              key: ValueKey(iconData.codePoint),
+              color: color,
+              size: 30,
+            ),
+          ),
+        ),
 
         if ( value > 0 )
         Text( HumanFormats.humanReadbleNumber(value.toDouble()) ),
