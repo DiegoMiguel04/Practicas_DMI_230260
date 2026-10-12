@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toktik_app/domain/entities/video_post.dart';
 import 'package:toktik_app/presentation/providers/discover_provider.dart';
+import 'package:toktik_app/presentation/providers/favorites_provider.dart';
+import 'package:toktik_app/presentation/providers/for_you_provider.dart';
 import 'package:toktik_app/presentation/widgets/shared/video_scrollable_view.dart';
 
 enum _FeedSection { forYou, discover, favorites }
@@ -15,79 +17,98 @@ class DiscoverScreen extends StatefulWidget {
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
   _FeedSection _selectedSection = _FeedSection.forYou;
+  final FavoritesProvider _favoritesProvider = const FavoritesProvider();
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<DiscoverProvider>();
-    final videos = _videosForSection(provider);
+    final forYou = context.watch<ForYouProvider>();
+    final discover = context.watch<DiscoverProvider>();
+    final videos = _videosForSection(forYou, discover);
+    final loading = switch (_selectedSection) {
+      _FeedSection.forYou => forYou.initialLoading,
+      _FeedSection.discover => discover.initialLoading,
+      _FeedSection.favorites => false,
+    };
+    final error = switch (_selectedSection) {
+      _FeedSection.forYou => forYou.errorMessage,
+      _FeedSection.discover => discover.errorMessage,
+      _FeedSection.favorites => null,
+    };
+
+    final sectionBar = SafeArea(
+      bottom: false,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: _SectionBar(
+            selectedSection: _selectedSection,
+            onSelected: (section) {
+              setState(() => _selectedSection = section);
+              if (section == _FeedSection.discover) {
+                context.read<DiscoverProvider>().loadVideos();
+              }
+            },
+          ),
+        ),
+      ),
+    );
+    final feedContent = loading
+        ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
+        : error != null
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(error, textAlign: TextAlign.center),
+                ),
+              )
+            : videos.isEmpty
+                ? Center(
+                    child: Text(
+                      _selectedSection == _FeedSection.favorites
+                          ? 'Aun no tienes videos favoritos.'
+                          : 'No hay videos para mostrar.',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  )
+                : VideoScrollableView(
+                    key: ValueKey(_selectedSection),
+                    videos: videos,
+                    youtube: _selectedSection == _FeedSection.discover,
+                  );
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (provider.initialLoading)
-            const Center(child: CircularProgressIndicator(strokeWidth: 2))
-          else if (provider.errorMessage != null)
-            Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      provider.errorMessage!,
-                      textAlign: TextAlign.center,
-                    ),
+      body: _selectedSection == _FeedSection.discover
+          ? Column(
+              children: [
+                sectionBar,
+                Expanded(
+                  child: SafeArea(
+                    top: false,
+                    child: feedContent,
                   ),
-                )
-          else
-            Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (videos.isEmpty)
-                      Center(
-                        child: Text(
-                          _selectedSection == _FeedSection.favorites
-                              ? 'Aún no tienes videos favoritos.'
-                              : 'No hay videos para mostrar.',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      )
-                    else
-                      VideoScrollableView(
-                        key: ValueKey(_selectedSection),
-                        videos: videos,
-                      ),
-                    SafeArea(
-                      bottom: false,
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: _SectionBar(
-                            selectedSection: _selectedSection,
-                            onSelected: (section) {
-                              setState(() => _selectedSection = section);
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
-        ],
-      ),
+              ],
+            )
+          : Stack(
+              fit: StackFit.expand,
+              children: [feedContent, sectionBar],
+            ),
     );
   }
 
-  List<VideoPost> _videosForSection(DiscoverProvider provider) {
+  List<VideoPost> _videosForSection(
+    ForYouProvider forYou,
+    DiscoverProvider discover,
+  ) {
     switch (_selectedSection) {
       case _FeedSection.forYou:
-        return provider.videos;
+        return forYou.videos;
       case _FeedSection.discover:
-        return provider.videos.reversed.toList();
+        return discover.videos;
       case _FeedSection.favorites:
-        return provider.videos
-            .where((video) => provider.likedVideoIds.contains(video.id))
-            .toList();
+        return _favoritesProvider.videosFrom(forYou);
     }
   }
 }

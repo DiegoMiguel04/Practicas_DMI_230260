@@ -6,6 +6,7 @@ class VideoPost {
   final String caption;
   final String description;
   final String videoUrl;
+  final String? youtubeVideoId;
   final int likes;
   final int views;
   final Map<String, String> httpHeaders;
@@ -15,6 +16,7 @@ class VideoPost {
     required this.caption,
     this.description = '',
     required this.videoUrl,
+    this.youtubeVideoId,
     this.likes = 0,
     this.views = 0,
     this.httpHeaders = const {},
@@ -25,6 +27,7 @@ class VideoPost {
     caption: caption,
     description: description,
     videoUrl: videoUrl,
+    youtubeVideoId: youtubeVideoId,
     likes: likes ?? this.likes,
     views: views ?? this.views,
     httpHeaders: httpHeaders,

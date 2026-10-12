@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:toktik_app/config/helpers/human_formats.dart';
 import 'package:toktik_app/domain/entities/video_post.dart';
 import 'package:provider/provider.dart';
-import 'package:toktik_app/presentation/providers/discover_provider.dart';
+import 'package:toktik_app/presentation/providers/for_you_provider.dart';
 
 
 class VideoButtons extends StatelessWidget {
@@ -17,7 +17,7 @@ class VideoButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<DiscoverProvider>();
+    final provider = context.watch<ForYouProvider>();
     final isLiked = provider.likedVideoIds.contains(video.id);
     return Column(
       children: [

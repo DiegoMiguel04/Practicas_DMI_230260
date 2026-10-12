@@ -1,14 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:toktik_app/domain/entities/video_post.dart';
 import 'package:provider/provider.dart';
-import 'package:toktik_app/presentation/providers/discover_provider.dart';
+import 'package:toktik_app/presentation/providers/for_you_provider.dart';
 import 'package:toktik_app/presentation/widgets/shared/video_buttons.dart';
 import 'package:toktik_app/presentation/widgets/video/fullscreen_player.dart';
+import 'package:toktik_app/presentation/widgets/video/youtube_fullscreen_player.dart';
 
 class VideoScrollableView extends StatefulWidget {
   final List<VideoPost> videos;
+  final bool youtube;
 
-  const VideoScrollableView({super.key, required this.videos});
+  const VideoScrollableView({super.key, required this.videos, this.youtube = false});
 
   @override
   State<VideoScrollableView> createState() => _VideoScrollableViewState();
@@ -16,10 +19,14 @@ class VideoScrollableView extends StatefulWidget {
 
 class _VideoScrollableViewState extends State<VideoScrollableView> {
   int _currentPage = 0;
+  late final PageController _pageController;
+  Offset? _pointerDownPosition;
+  int? _activePointer;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && widget.videos.isNotEmpty) {
         _recordView(widget.videos.first.id);
@@ -27,8 +34,14 @@ class _VideoScrollableViewState extends State<VideoScrollableView> {
     });
   }
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   void _recordView(String videoId) {
-    context.read<DiscoverProvider>().recordView(videoId);
+    if (!widget.youtube) context.read<ForYouProvider>().recordView(videoId);
   }
 
   @override
@@ -44,35 +57,85 @@ class _VideoScrollableViewState extends State<VideoScrollableView> {
 
   @override
   Widget build(BuildContext context) {
-    return PageView.builder(
-      scrollDirection: Axis.vertical,
-      physics: const BouncingScrollPhysics(),
-      itemCount: widget.videos.length,
-      onPageChanged: (index) {
-        _currentPage = index;
-        _recordView(widget.videos[index].id);
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (event) {
+        _pointerDownPosition = event.position;
+        _activePointer = event.pointer;
       },
-      itemBuilder: (context, index) {
-        final videoPost = widget.videos[index];
+      onPointerUp: (event) {
+        final start = _pointerDownPosition;
+        if (!widget.youtube ||
+            !kIsWeb ||
+            start == null ||
+            event.pointer != _activePointer) {
+          return;
+        }
+        _pointerDownPosition = null;
+        _activePointer = null;
 
-        return Stack(
-          children: [
-            SizedBox.expand(
-              child: FullScreenPlayer(
-                caption: videoPost.caption,
-                description: videoPost.description,
-                videoUrl: videoPost.videoUrl,
-                httpHeaders: videoPost.httpHeaders,
-              ),
-            ),
-            Positioned(
-              bottom: 40,
-              right: 20,
-              child: VideoButtons(video: videoPost),
-            ),
-          ],
-        );
+        final delta = event.position - start;
+        if (delta.dy.abs() < 64 || delta.dy.abs() <= delta.dx.abs()) return;
+        _goToPage(delta.dy < 0);
       },
+      onPointerCancel: (_) {
+        _pointerDownPosition = null;
+        _activePointer = null;
+      },
+      child: PageView.builder(
+        controller: _pageController,
+        scrollDirection: Axis.vertical,
+        physics: widget.youtube
+            ? const NeverScrollableScrollPhysics()
+            : const BouncingScrollPhysics(),
+        itemCount: widget.videos.length,
+        onPageChanged: (index) {
+          setState(() => _currentPage = index);
+          _recordView(widget.videos[index].id);
+        },
+        itemBuilder: (context, index) {
+          final videoPost = widget.videos[index];
+
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: widget.youtube
+                    ? YoutubeFullScreenPlayer(
+                        key: ValueKey(videoPost.youtubeVideoId),
+                        videoId: videoPost.youtubeVideoId!,
+                        isActive: index == _currentPage,
+                        onVerticalSwipe: _goToPage,
+                      )
+                    : FullScreenPlayer(
+                        caption: videoPost.caption,
+                        description: videoPost.description,
+                        videoUrl: videoPost.videoUrl,
+                        httpHeaders: videoPost.httpHeaders,
+                      ),
+              ),
+              if (!widget.youtube)
+                Positioned(
+                  bottom: 40,
+                  right: 20,
+                  child: VideoButtons(video: videoPost),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  void _goToPage(bool forward) {
+    if (!_pageController.hasClients || widget.videos.isEmpty) return;
+    final nextPage = (_currentPage + (forward ? 1 : -1))
+        .clamp(0, widget.videos.length - 1)
+        .toInt();
+    if (nextPage == _currentPage) return;
+    _pageController.animateToPage(
+      nextPage,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
     );
   }
 }
