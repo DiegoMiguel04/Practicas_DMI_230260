@@ -61,6 +61,10 @@ flutter:
 
   assets:
     - assets/icon.png
+    - assets/octubre_like_icon.png
+    - assets/octubre_band_icon.png
+    - assets/diciembre_like_icon.png
+    - assets/diciembre_band_icon.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

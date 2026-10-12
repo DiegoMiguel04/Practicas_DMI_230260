@@ -119,6 +119,12 @@ class _VideoScrollableViewState extends State<VideoScrollableView> {
                   right: 20,
                   child: VideoButtons(video: videoPost),
                 ),
+              if (!widget.youtube && (DateTime.now().month == 10 || DateTime.now().month == 12))
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  child: _SeasonalRibbon(date: DateTime.now()),
+                ),
             ],
           );
         },
@@ -136,6 +142,43 @@ class _VideoScrollableViewState extends State<VideoScrollableView> {
       nextPage,
       duration: const Duration(milliseconds: 280),
       curve: Curves.easeOutCubic,
+    );
+  }
+}
+
+class _SeasonalRibbon extends StatelessWidget {
+  const _SeasonalRibbon({required this.date});
+  final DateTime date;
+
+  @override
+  Widget build(BuildContext context) {
+    final october = date.month == 10;
+    final month = october ? 'Octubre' : 'Diciembre';
+    final color = october ? const Color(0xFF6D218E) : const Color(0xFF087A3C);
+    return SafeArea(
+      child: SizedBox(
+        width: 154,
+        height: 112,
+        child: Stack(alignment: Alignment.topLeft, children: [
+          Positioned(
+            left: -43,
+            top: 26,
+            child: Transform.rotate(
+              angle: -0.785398,
+              child: Container(
+                width: 176,
+                height: 34,
+                decoration: BoxDecoration(color: color, boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 5)]),
+                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Image.asset('assets/${october ? 'octubre' : 'diciembre'}_band_icon.png', width: 23, height: 23, fit: BoxFit.contain),
+                  const SizedBox(width: 6),
+                  Text('$month (${date.year})', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                ]),
+              ),
+            ),
+          ),
+        ]),
+      ),
     );
   }
 }
