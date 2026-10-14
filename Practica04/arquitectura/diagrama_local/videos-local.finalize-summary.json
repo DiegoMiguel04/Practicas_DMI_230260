@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\.archify\\videos-local-20261013\\candidate.json",
+    "sha256": "12ce8f51504de95b88b5b168d108ba131f1cd99fd53767aee53d11cbcf96b1c4",
+    "bytes": 2884
+  },
+  "artifact": {
+    "path": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\arquitectura\\videos-local.html",
+    "sha256": "3077b86cd27c5a76a06abc0b778bb66fe6cc0f8dda836971d144aa1e5166eaab",
+    "bytes": 815587
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\arquitectura\\videos-local.finalize.json",
+    "summaryReceipt": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\arquitectura\\videos-local.finalize-summary.json",
+    "browserCheckReceipt": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\arquitectura\\videos-local.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.1.0",
+    "availableVersion": "3.1.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-13T23:19:29.020Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3306,
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "routesOverSuggestedBends": 1
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [],
+      "detours": [
+        {
+          "relationship": {
+            "id": "provider-player",
+            "from": "provider",
+            "to": "player",
+            "label": "lista de videos y metadatos",
+            "collectionIndex": 4,
+            "artifactIndex": 5
+          },
+          "bends": 3,
+          "stretch": 1.211
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "provider → player needs 3 bends: move node provider or player so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  },
+  "layoutReviewRecommendation": {
+    "action": "inspect-leading-space",
+    "evidence": {
+      "measured": true,
+      "emptyTopPx": 160,
+      "emptyTopRatio": 0.34,
+      "occupiedTop": 160,
+      "viewBoxTop": 0,
+      "canvasHeight": 470,
+      "typicalNodeHeight": 72,
+      "reviewSuggested": true
+    },
+    "reason": "Measured content, including routes and labels, leaves a large empty area above the diagram. This is a composition suggestion, not a failed gate.",
+    "repair": "Check whether that leading space is intentional. If not, reposition the connected scene nearer the canvas origin while retaining room for its actual boundaries, labels and return routes. Preserve all meaning and user-fixed geometry, then rerun finalize. No screenshot is required."
+  }
+}

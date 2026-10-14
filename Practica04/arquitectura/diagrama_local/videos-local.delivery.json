@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "3930ec54-251f-4906-b56d-29e3924f440a",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\.archify\\videos-local-20261013\\candidate.json",
+  "output": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\arquitectura\\videos-local.html",
+  "specification": {
+    "sha256": "12ce8f51504de95b88b5b168d108ba131f1cd99fd53767aee53d11cbcf96b1c4",
+    "bytes": 2884
+  },
+  "artifact": {
+    "sha256": "3077b86cd27c5a76a06abc0b778bb66fe6cc0f8dda836971d144aa1e5166eaab",
+    "bytes": 815587
+  }
+}

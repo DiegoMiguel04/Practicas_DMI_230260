@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "TokTik · videos locales (simulación)",
+    "subtitle": "Flujo hipotético de reproducción desde assets/videos",
+    "output": "arquitectura/videos-local.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/DiegoMiguel04/Practicas_DMI_230260.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "ad3d3d90e1ec11ec46ae563277aa14822f686d41"
+    }
+  },
+  "components": [
+    {"id":"viewer","type":"external","label":"Persona","sublabel":"Desliza el feed","pos":[40,160],"size":[130,64]},
+    {"id":"screen","type":"frontend","label":"TokTik · Para ti","sublabel":"DiscoverScreen","pos":[240,160],"size":[170,72],"sources":[{"path":"Practica04/toktik_app/lib/presentation/screens/discover/discover_screen.dart","line":18,"end_line":26}]},
+    {"id":"provider","type":"backend","label":"Carga local","sublabel":"Flujo propuesto","pos":[500,160],"size":[170,72],"sources":[{"path":"Practica04/toktik_app/lib/presentation/providers/for_you_provider.dart","line":20,"end_line":38}]},
+    {"id":"assets","type":"database","label":"assets/videos","sublabel":"Archivos incluidos en la app","pos":[500,330],"size":[190,72],"sources":[{"path":"Practica04/toktik_app/assets/videos/pexels.txt","line":1,"label":"Carpeta documentada"}]},
+    {"id":"player","type":"frontend","label":"Reproductor de video","sublabel":"Lectura local simulada","pos":[780,160],"size":[190,72],"sources":[{"path":"Practica04/toktik_app/lib/presentation/widgets/shared/video_scrollable_view.dart","line":82,"end_line":94},{"path":"Practica04/toktik_app/lib/presentation/widgets/video/fullscreen_player.dart","line":7,"end_line":40}]}
+  ],
+  "connections": [
+    {"id":"viewer-screen","from":"viewer","to":"screen","label":"abre feed","variant":"emphasis"},
+    {"id":"screen-provider","from":"screen","to":"provider","label":"solicita videos"},
+    {"id":"provider-assets","from":"provider","to":"assets","label":"enumera rutas locales","variant":"dashed","fromSide":"bottom","toSide":"top"},
+    {"id":"assets-player","from":"assets","to":"player","label":"ruta del archivo para reproducir","variant":"dashed","fromSide":"right","toSide":"bottom"},
+    {"id":"provider-player","from":"provider","to":"player","label":"lista de videos y metadatos","variant":"dashed"}
+  ],
+  "cards": [
+    {"dot":"amber","title":"Alcance de la simulación","items":["El repositorio actual carga Para ti desde Google Drive; este diagrama sustituye esa fuente por assets/videos como escenario hipotético.","assets/videos contiene pexels.txt, no videos. El proveedor y la lectura local mostrados no están implementados actualmente.","Las referencias de código enlazan los puntos existentes más cercanos en GitHub; las conexiones discontinuas representan el flujo simulado."]}
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "TokTik · videos de YouTube",
+    "subtitle": "Feed Descubrir: búsqueda, validación de duración y reproducción embebida",
+    "output": "arquitectura/videos-youtube.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/DiegoMiguel04/Practicas_DMI_230260.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "ad3d3d90e1ec11ec46ae563277aa14822f686d41"
+    }
+  },
+  "components": [
+    {"id":"viewer","type":"external","label":"Persona","sublabel":"Selecciona Descubrir","pos":[40,190],"size":[140,64]},
+    {"id":"screen","type":"frontend","label":"TokTik · Descubrir","sublabel":"DiscoverScreen","pos":[250,190],"size":[180,72],"sources":[{"path":"Practica04/toktik_app/lib/presentation/screens/discover/discover_screen.dart","line":38,"end_line":51},{"path":"Practica04/toktik_app/lib/presentation/screens/discover/discover_screen.dart","line":74,"end_line":78}]},
+    {"id":"provider","type":"backend","label":"DiscoverProvider","sublabel":"Carga una vez y mezcla resultados","pos":[520,190],"size":[200,72],"sources":[{"path":"Practica04/toktik_app/lib/presentation/providers/discover_provider.dart","line":8,"end_line":32}]},
+    {"id":"datasource","type":"backend","label":"YouTubeVideoDataSource","sublabel":"HTTP · adapta VideoPost","pos":[820,190],"size":[220,72],"sources":[{"path":"Practica04/toktik_app/lib/infrastructure/datasources/youtube_video_datasource.dart","line":6,"end_line":18},{"path":"Practica04/toktik_app/lib/infrastructure/datasources/youtube_video_datasource.dart","line":71,"end_line":82}]},
+    {"id":"search","type":"cloud","label":"YouTube Data API · Search","sublabel":"youtube/v3/search","pos":[1150,100],"size":[220,72],"sources":[{"path":"Practica04/toktik_app/lib/infrastructure/datasources/youtube_video_datasource.dart","line":20,"end_line":45}]},
+    {"id":"details","type":"cloud","label":"YouTube Data API · Videos","sublabel":"youtube/v3/videos · duración","pos":[1150,300],"size":[230,72],"sources":[{"path":"Practica04/toktik_app/lib/infrastructure/datasources/youtube_video_datasource.dart","line":47,"end_line":69}]},
+    {"id":"player","type":"frontend","label":"YouTubeFullScreenPlayer","sublabel":"youtube_player_iframe","pos":[520,410],"size":[240,72],"sources":[{"path":"Practica04/toktik_app/lib/presentation/widgets/shared/video_scrollable_view.dart","line":82,"end_line":94},{"path":"Practica04/toktik_app/lib/presentation/widgets/video/youtube_fullscreen_player.dart","line":30,"end_line":52}]},
+    {"id":"youtube","type":"cloud","label":"YouTube · video embebido","sublabel":"Reproducción por videoId","pos":[850,410],"size":[220,72],"sources":[{"path":"Practica04/toktik_app/lib/presentation/widgets/video/youtube_fullscreen_player.dart","line":31,"end_line":44}]}
+  ],
+  "connections": [
+    {"id":"viewer-screen","from":"viewer","to":"screen","label":"elige Descubrir","variant":"emphasis"},
+    {"id":"screen-provider","from":"screen","to":"provider","label":"loadVideos()"},
+    {"id":"provider-datasource","from":"provider","to":"datasource","label":"getVideos(limit: 10)"},
+    {"id":"datasource-search","from":"datasource","to":"search","label":"GET · q=shorts, videoEmbeddable","variant":"emphasis"},
+    {"id":"search-details","from":"search","to":"details","label":"IDs de video · GET contentDetails","variant":"emphasis"},
+    {"id":"details-datasource","from":"details","to":"datasource","label":"duraciones · descarta >180 s","variant":"dashed"},
+    {"id":"datasource-provider","from":"datasource","to":"provider","label":"VideoPost + videoId","variant":"dashed"},
+    {"id":"provider-screen","from":"provider","to":"screen","label":"lista de resultados","variant":"dashed"},
+    {"id":"screen-player","from":"screen","to":"player","label":"página activa · youtube=true","variant":"emphasis"},
+    {"id":"player-youtube","from":"player","to":"youtube","label":"carga y reproduce videoId","variant":"emphasis"}
+  ],
+  "cards": [
+    {"dot":"cyan","title":"Criterios de búsqueda","items":["Descubrir llama la API al seleccionarse y evita repetir la carga durante la misma sesión.","Search busca videos embebibles y cortos; Videos aporta duración y el código descarta los que superan 180 segundos.","La API entrega identificadores y metadatos. El reproductor integrado de YouTube transmite el video mediante youtube_player_iframe."]},
+    {"dot":"rose","title":"Configuración","items":["DiscoverProvider conecta YoutubeConfig.apiKey con YoutubeVideoDataSource.","youtube_config.dart es la referencia de GitHub para la configuración de la API."]}
+  ]
+}

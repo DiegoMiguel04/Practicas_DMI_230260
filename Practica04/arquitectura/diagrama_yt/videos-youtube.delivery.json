@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "ade110d8-1a46-440d-abd6-3f96a00f68d3",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\.archify\\youtube-api-20261013\\candidate.json",
+  "output": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\arquitectura\\videos-youtube.html",
+  "specification": {
+    "sha256": "9ad8bf727b9a953f33879e92ea1d08fce66bc726db4e132344ac8586bd1449ec",
+    "bytes": 4695
+  },
+  "artifact": {
+    "sha256": "512f75b02014e2caa49dfcb2a8342f32f53215bcacf470cef35fdfb0c5241b34",
+    "bytes": 827836
+  }
+}

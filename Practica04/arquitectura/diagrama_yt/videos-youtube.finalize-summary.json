@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\.archify\\youtube-api-20261013\\candidate.json",
+    "sha256": "9ad8bf727b9a953f33879e92ea1d08fce66bc726db4e132344ac8586bd1449ec",
+    "bytes": 4695
+  },
+  "artifact": {
+    "path": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\arquitectura\\videos-youtube.html",
+    "sha256": "512f75b02014e2caa49dfcb2a8342f32f53215bcacf470cef35fdfb0c5241b34",
+    "bytes": 827836
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\arquitectura\\videos-youtube.finalize.json",
+    "summaryReceipt": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\arquitectura\\videos-youtube.finalize-summary.json",
+    "browserCheckReceipt": "C:\\Users\\PC-04\\Desktop\\Practicas_DMI_230260\\Practica04\\arquitectura\\videos-youtube.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.1.0",
+    "availableVersion": "3.1.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-13T23:19:29.020Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2909,
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "routesOverSuggestedBends": 4
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [],
+      "detours": [
+        {
+          "relationship": {
+            "id": "viewer-screen",
+            "from": "viewer",
+            "to": "screen",
+            "label": "elige Descubrir",
+            "collectionIndex": 0,
+            "artifactIndex": 1
+          },
+          "bends": 3,
+          "stretch": 1.286
+        },
+        {
+          "relationship": {
+            "id": "provider-datasource",
+            "from": "provider",
+            "to": "datasource",
+            "label": "getVideos(limit: 10)",
+            "collectionIndex": 2,
+            "artifactIndex": 3
+          },
+          "bends": 3,
+          "stretch": 1.21
+        },
+        {
+          "relationship": {
+            "id": "provider-screen",
+            "from": "provider",
+            "to": "screen",
+            "label": "lista de resultados",
+            "collectionIndex": 7,
+            "artifactIndex": 8
+          },
+          "bends": 3,
+          "stretch": 1.215
+        },
+        {
+          "relationship": {
+            "id": "player-youtube",
+            "from": "player",
+            "to": "youtube",
+            "label": "carga y reproduce videoId",
+            "collectionIndex": 9,
+            "artifactIndex": 10
+          },
+          "bends": 3,
+          "stretch": 1.203
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "viewer → screen needs 3 bends: move node viewer or screen so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "provider → datasource needs 3 bends: move node provider or datasource so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "provider → screen needs 3 bends: move node provider or screen so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "player → youtube needs 3 bends: move node player or youtube so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}
