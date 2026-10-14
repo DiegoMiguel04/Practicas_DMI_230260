@@ -77,16 +77,10 @@ adb shell run-as com.example.toktik_app cat shared_prefs/FlutterSharedPreference
 
 **Diagrama de Arquitectura (videos locales):** [Diagrama de la arquitectura del proyecto](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica04/arquitectura/diagrama_local/)
 
-![Evidencia](arquitectura/diagram-dark.png)
+![Evidencia](images/toktik-videos-locales.png)
 
 
 
 **Diagrama de Arquitectura (API YouTube):** [Diagrama de la arquitectura del proyecto](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica04/arquitectura/diagrama_yt/)
 
-![Evidencia](arquitectura/diagram-dark.png)
-
-
-
-**Arquitectura del proyecto:** [Diagrama de la arquitectura del proyecto](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica04/arquitectura/primer_diagrama/)
-
-![Evidencia](arquitectura/primer_diagrama/diagram-dark.png)
+![Evidencia](images/toktik-videos-de-youtube.png)
