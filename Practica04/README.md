@@ -60,19 +60,6 @@ adb shell run-as com.example.toktik_app cat shared_prefs/FlutterSharedPreference
 
 ---
 
-## Evidencias
-
-|![Evidencia](images/cap_feed_1.png)|![Evidencia](images/cap_feed_2.png)|![Evidencia](images/cap_feed_3.png)|
-|---|---|---|
-
-<br>
-
-|![Evidencia](images/cap_pausa.png)|![Evidencia](images/cap_description.png)|
-|---|---|
-|Video en pausa|Descripción extendida|
-
----
-
 ## Diagramas de arquitectura
 
 **Diagrama de Arquitectura (videos locales):** [Diagrama de la arquitectura del proyecto](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica04/arquitectura/diagrama_local/)
@@ -84,3 +71,23 @@ adb shell run-as com.example.toktik_app cat shared_prefs/FlutterSharedPreference
 **Diagrama de Arquitectura (API YouTube):** [Diagrama de la arquitectura del proyecto](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica04/arquitectura/diagrama_yt/)
 
 ![Evidencia](images/toktik-videos-de-youtube.png)
+
+---
+
+
+
+## Evidencias
+
+|![Evidencia](images/cap_feed_1.png)|![Evidencia](images/cap_feed_2.png)|![Evidencia](images/cap_feed_3.png)|
+|---|---|---|
+
+<br>
+
+|![Evidencia](images/cap_pausa.png)|![Evidencia](images/cap_description.png)|
+|---|---|
+|Video en pausa|Descripción extendida|
+
+<br>
+
+|![Evidencia](images/cap_octubre.png)|![Evidencia](images/cap_diciembre.png)|
+|---|---|
