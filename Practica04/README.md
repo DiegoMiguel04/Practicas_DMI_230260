@@ -60,6 +60,24 @@ adb shell run-as com.example.toktik_app cat shared_prefs/FlutterSharedPreference
 
 ---
 
+
+## Iconos
+
+|<img src="images/icon.png" width=300>|<img src="images/icon_main_octubre.png" width=300>|<img src="images/icon_main_diciembre.png" width=300>|
+|---|---|---|
+
+
+
+---
+
+
+## Appetize 
+
+[Aplicación en Appetize](https://appetize.io/app/b_silq66cfa7gdbufqwk6xxld3zi)
+
+
+---
+
 ## Diagramas de arquitectura
 
 **Diagrama de Arquitectura (videos locales):** [Diagrama de la arquitectura del proyecto](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica04/arquitectura/diagrama_local/)
@@ -73,7 +91,6 @@ adb shell run-as com.example.toktik_app cat shared_prefs/FlutterSharedPreference
 ![Evidencia](images/toktik-videos-de-youtube.png)
 
 ---
-
 
 
 ## Evidencias
