@@ -1,4 +1,4 @@
-﻿# TokTik
+﻿# TokTik App
 
 Aplicación móvil de videos verticales desarrollada con Flutter. Los videos se cargan desde una carpeta de Google Drive y se presentan en un feed con interacciones y estadísticas locales.
 
@@ -63,8 +63,10 @@ adb shell run-as com.example.toktik_app cat shared_prefs/FlutterSharedPreference
 
 ## Iconos
 
-|<img src="images/icon.png" width=300>|<img src="images/icon_main_octubre.png" width=300>|<img src="images/icon_main_diciembre.png" width=300>|
-|---|---|---|
+|Default|Octubre|Diciembre|Febrero|
+|---|---|---|---|
+|<img src="images/icon.png" width=300>|<img src="images/icon_main_octubre.png" width=300>|<img src="images/icon_main_diciembre.png" width=300>|<img src="images/icon_main_febrero.png" width=300>|
+
 
 
 
@@ -73,7 +75,7 @@ adb shell run-as com.example.toktik_app cat shared_prefs/FlutterSharedPreference
 
 ## Appetize 
 
-[Aplicación en Appetize](https://appetize.io/app/b_silq66cfa7gdbufqwk6xxld3zi)
+[Ir a la Aplicación en Appetize](https://appetize.io/app/b_silq66cfa7gdbufqwk6xxld3zi)
 
 
 ---
@@ -114,4 +116,5 @@ adb shell run-as com.example.toktik_app cat shared_prefs/FlutterSharedPreference
 |![API_YouTube](images/cap_tema_1.png)|![API_PeerTube](images/cap_tema_2.png)|![API_Dailymotion](images/cap_tema_3.png)|
 
 **Selector de temas**
-<img src="images/temas.png" width=250>
+|<img src="images/temas.png" width=275>|
+|---|
