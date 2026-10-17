@@ -5,6 +5,8 @@ import 'package:toktik_app/presentation/providers/discover_provider.dart';
 import 'package:toktik_app/presentation/providers/favorites_provider.dart';
 import 'package:toktik_app/presentation/providers/for_you_provider.dart';
 import 'package:toktik_app/presentation/widgets/shared/video_scrollable_view.dart';
+import 'package:toktik_app/config/theme/season_theme.dart';
+import 'package:flutter/services.dart';
 
 enum _FeedSection { forYou, discover, favorites }
 
@@ -21,6 +23,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final season = context.watch<SeasonProvider>().season;
     final forYou = context.watch<ForYouProvider>();
     final discover = context.watch<DiscoverProvider>();
     final videos = _videosForSection(forYou, discover);
@@ -41,14 +44,21 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         alignment: Alignment.topCenter,
         child: Padding(
           padding: const EdgeInsets.only(top: 8, bottom: 8),
-          child: _SectionBar(
-            selectedSection: _selectedSection,
-            onSelected: (section) {
-              setState(() => _selectedSection = section);
-              if (section == _FeedSection.discover) {
-                context.read<DiscoverProvider>().loadVideos();
-              }
-            },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const _SeasonalFeedDecoration(),
+              const SizedBox(height: 7),
+              _SectionBar(
+                selectedSection: _selectedSection,
+                onSelected: (section) {
+                  setState(() => _selectedSection = section);
+                  if (section == _FeedSection.discover) {
+                    context.read<DiscoverProvider>().loadVideos();
+                  }
+                },
+              ),
+            ],
           ),
         ),
       ),
@@ -78,23 +88,78 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                   );
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: season.background,
       body: _selectedSection == _FeedSection.discover
-          ? Column(
-              children: [
-                sectionBar,
-                Expanded(
-                  child: SafeArea(
-                    top: false,
-                    child: feedContent,
-                  ),
-                ),
-              ],
-            )
+          ? Stack(children: [
+              Column(
+                children: [
+                  sectionBar,
+                  Expanded(child: SafeArea(top: false, child: feedContent)),
+                ],
+              ),
+              Positioned(
+                top: MediaQuery.paddingOf(context).top + 8,
+                right: 14,
+                child: _PaletteButton(onTap: () => _showSeasonPicker(context)),
+              ),
+            ])
           : Stack(
               fit: StackFit.expand,
-              children: [feedContent, sectionBar],
+              children: [
+                feedContent,
+                sectionBar,
+                Positioned(
+                  top: MediaQuery.paddingOf(context).top + 8,
+                  right: 14,
+                  child: _PaletteButton(onTap: () => _showSeasonPicker(context)),
+                ),
+              ],
             ),
+    );
+  }
+
+  Future<void> _showSeasonPicker(BuildContext context) async {
+    final provider = context.read<SeasonProvider>();
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF191921),
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Estilo de temporada', style: TextStyle(fontSize: 21, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            const Text('Personaliza los colores, letras y detalles de TokTik', style: TextStyle(color: Colors.white60)),
+            const SizedBox(height: 16),
+            for (final season in AppSeason.values)
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                leading: CircleAvatar(
+                  backgroundColor: season.accent,
+                  child: Icon(
+                    season == AppSeason.normal ? Icons.restart_alt : Icons.auto_awesome,
+                    color: Colors.white,
+                  ),
+                ),
+                title: Text(season.label, style: const TextStyle(fontWeight: FontWeight.w600)),
+                trailing: provider.season == season ? Icon(Icons.check_circle, color: season.accent) : const Icon(Icons.chevron_right),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                onTap: () async {
+                  await provider.select(season);
+                  try {
+                    await const MethodChannel('toktik/app_icon').invokeMethod<void>('setSeason', season.name);
+                  } on PlatformException {
+                    // The in-app theme remains available if the launcher rejects icon changes.
+                  } on MissingPluginException {
+                    // Web and desktop do not expose a native launcher icon.
+                  }
+                  if (sheetContext.mounted) Navigator.pop(sheetContext);
+                },
+              ),
+          ]),
+        ),
+      ),
     );
   }
 
@@ -110,6 +175,45 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       case _FeedSection.favorites:
         return _favoritesProvider.videosFrom(forYou);
     }
+  }
+}
+
+class _PaletteButton extends StatelessWidget {
+  const _PaletteButton({required this.onTap});
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => Material(
+    color: Colors.black.withValues(alpha: .46),
+    shape: const CircleBorder(),
+    child: IconButton(tooltip: 'Cambiar estilo', onPressed: onTap, icon: const Icon(Icons.palette_outlined), color: Colors.white),
+  );
+}
+
+class _SeasonalFeedDecoration extends StatelessWidget {
+  const _SeasonalFeedDecoration();
+
+  @override
+  Widget build(BuildContext context) {
+    final season = context.watch<SeasonProvider>().season;
+    if (!season.isSeasonal) return const SizedBox.shrink();
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: .38),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: season.accent.withValues(alpha: .38)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Image.asset(season.bandAsset!, width: 27, height: 27, fit: BoxFit.contain),
+          const SizedBox(width: 8),
+          Text(
+            season.festivalName,
+            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: .3, shadows: [Shadow(color: season.accent, blurRadius: 9)]),
+          ),
+        ]),
+      ),
+    );
   }
 }
 
@@ -179,7 +283,7 @@ class _SectionButton extends StatelessWidget {
       onPressed: () => onSelected(section),
       style: TextButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: isSelected ? Colors.white.withValues(alpha: 0.2) : null,
+        backgroundColor: isSelected ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.28) : null,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),

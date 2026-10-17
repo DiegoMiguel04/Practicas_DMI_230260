@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Consumo de APIs de video en TokTik",
+    "quality_profile": "showcase"
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 4,
+    "origin": [100, 100],
+    "gapX": 60,
+    "gapY": 90,
+    "cellW": 170,
+    "cellH": 100
+  },
+  "components": [
+    {
+      "id": "discover-screen",
+      "type": "frontend",
+      "label": "Descubrir",
+      "sublabel": "Feed Descubrir",
+      "row": 1,
+      "col": 0
+    },
+    {
+      "id": "discover-provider",
+      "type": "backend",
+      "label": "DiscoverProvider",
+      "sublabel": "Paralelo · mezcla feed",
+      "row": 1,
+      "col": 1
+    },
+    {
+      "id": "youtube-source",
+      "type": "backend",
+      "label": "YouTube",
+      "sublabel": "DataSource · límite 8",
+      "row": 0,
+      "col": 2
+    },
+    {
+      "id": "peertube-source",
+      "type": "backend",
+      "label": "PeerTube",
+      "sublabel": "DataSource · índice y fallback",
+      "row": 1,
+      "col": 2
+    },
+    {
+      "id": "dailymotion-source",
+      "type": "backend",
+      "label": "Dailymotion",
+      "sublabel": "DataSource · límite 8",
+      "row": 2,
+      "col": 2
+    },
+    {
+      "id": "youtube-api",
+      "type": "external",
+      "label": "YouTube Data API v3",
+      "sublabel": "GET /youtube/v3/search",
+      "row": 0,
+      "col": 3
+    },
+    {
+      "id": "peertube-api",
+      "type": "external",
+      "label": "PeerTube público",
+      "sublabel": "search.joinpeertube.org",
+      "row": 1,
+      "col": 3
+    },
+    {
+      "id": "dailymotion-api",
+      "type": "external",
+      "label": "Dailymotion API",
+      "sublabel": "GET api.dailymotion.com/videos",
+      "row": 2,
+      "col": 3
+    },
+    {
+      "id": "video-feed",
+      "type": "frontend",
+      "label": "VideoScrollableView",
+      "sublabel": "Feed · player por origen",
+      "row": 3,
+      "col": 0
+    }
+  ],
+  "connections": [
+    { "from": "discover-screen", "to": "discover-provider" },
+    { "from": "discover-provider", "to": "youtube-source" },
+    { "from": "discover-provider", "to": "peertube-source" },
+    { "from": "discover-provider", "to": "dailymotion-source" },
+    { "from": "youtube-source", "to": "youtube-api" },
+    { "from": "peertube-source", "to": "peertube-api" },
+    { "from": "dailymotion-source", "to": "dailymotion-api" },
+    { "from": "discover-provider", "to": "video-feed", "label": "Lista mezclada · selección por proveedor" }
+  ]
+}

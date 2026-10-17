@@ -80,31 +80,38 @@ adb shell run-as com.example.toktik_app cat shared_prefs/FlutterSharedPreference
 
 ## Diagramas de arquitectura
 
-**Diagrama de Arquitectura (videos locales):** [Diagrama de la arquitectura del proyecto](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica04/arquitectura/diagrama_local/)
+**Diagrama de Arquitectura (videos locales):** [Ver Diagrama de Arquitectura (videos locales)](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica04/arquitectura/diagrama_local/)
 
-![Evidencia](images/toktik-videos-locales.png)
+![Diagrama de videos locales](images/toktik-videos-locales.png)
 
+**Diagrama de Arquitectura (API's):** [Ver Diagrama de Arquitectura (API's)](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica04/arquitectura/diagrama_apis/)
 
-
-**Diagrama de Arquitectura (API YouTube):** [Diagrama de la arquitectura del proyecto](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica04/arquitectura/diagrama_yt/)
-
-![Evidencia](images/toktik-videos-de-youtube.png)
+![Diagrama de API's](images/diagrama-apis.png)
 
 ---
 
 
 ## Evidencias
 
-|![Evidencia](images/cap_feed_1.png)|![Evidencia](images/cap_feed_2.png)|![Evidencia](images/cap_feed_3.png)|
+**Secciones de la app**
+|Sección 'Para ti'|Sección 'Descubrir'|Sección 'Favoritos'|
 |---|---|---|
+|![seccion_1](images/cap_feed_1.png)|![seccion_2](images/cap_feed_2.png)|![seccion_3](images/cap_feed_3.png)|
 
 <br>
 
-|![Evidencia](images/cap_pausa.png)|![Evidencia](images/cap_description.png)|
-|---|---|
-|Video en pausa|Descripción extendida|
+**API's implementadas**
+|Youtube|Peertube|Dailymotion|
+|---|---|---|
+|![API_YouTube](images/cap_feed_youtube.png)|![API_PeerTube](images/cap_feed_peertube.png)|![API_Dailymotion](images/cap_feed_dailymotion.png)|
 
 <br>
 
-|![Evidencia](images/cap_octubre.png)|![Evidencia](images/cap_diciembre.png)|
-|---|---|
+**Temas disponibles**
+
+|Octubre|Diciembre|Febrero|
+|---|---|---|
+|![API_YouTube](images/cap_tema_1.png)|![API_PeerTube](images/cap_tema_2.png)|![API_Dailymotion](images/cap_tema_3.png)|
+
+**Selector de temas**
+<img src="images/temas.png" width=250>

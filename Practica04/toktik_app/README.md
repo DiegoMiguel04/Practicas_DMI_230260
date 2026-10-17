@@ -13,9 +13,9 @@ La app obtiene los videos de «Para ti» y «Favoritos» desde una carpeta de Go
 
 Se listan los archivos cuyo tipo MIME comienza con `video/`, ordenados por nombre.
 
-## Feed Descubrir con YouTube
+## Feed Descubrir
 
-El feed **Descubrir** usa YouTube Data API v3 para buscar hasta 10 videos insertables relacionados con `shorts`, y los reproduce mediante el reproductor oficial de YouTube. Los feeds **Para ti** y **Favoritos** continúan usando los videos de Google Drive.
+El feed **Descubrir** mezcla videos de YouTube Data API v3, PeerTube y Dailymotion. Los feeds **Para ti** y **Favoritos** continúan usando los videos de Google Drive.
 
 ### Configurar la API key
 
@@ -29,4 +29,8 @@ El feed **Descubrir** usa YouTube Data API v3 para buscar hasta 10 videos insert
 
 La clave queda incluida en la app compilada y puede extraerse. Restringirla a YouTube Data API v3 limita su uso a ese servicio. Para publicar la app, considera servir estas llamadas desde un backend y no subir una clave real a un repositorio público.
 
-La búsqueda solicita videos de menos de cuatro minutos y conserva los de hasta tres minutos como candidatos a Shorts. YouTube no ofrece un filtro de API que garantice que un resultado sea un Short. El reproductor oculta sus controles cuando YouTube lo permite; «Descubrir» tampoco muestra los botones laterales ni el texto superpuesto que se conserva para los videos de Drive.
+La búsqueda de YouTube solicita videos relacionados con `shorts`; YouTube no ofrece un filtro de API que garantice que un resultado sea un Short. Dailymotion usa la búsqueda pública de Platform API y su reproductor embebido oficial.
+
+### Dailymotion
+
+La búsqueda de videos públicos no necesita API key ni inicio de sesión. La app usa un Player ID compartido de ejemplo que Dailymotion publica en su documentación; si tienes un Player ID propio, puedes reemplazarlo en `lib/config/dailymotion_config.dart`. El Player ID es necesario porque Dailymotion rechaza los embeds sin uno.

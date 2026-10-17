@@ -41,6 +41,8 @@ dependencies:
   http: ^1.5.0
   shared_preferences: ^2.5.3
   youtube_player_iframe: ^6.0.2
+  webview_flutter: ^4.14.1
+  webview_flutter_android: ^4.14.1
 
 dev_dependencies:
   flutter_test:
@@ -65,6 +67,11 @@ flutter:
     - assets/octubre_band_icon.png
     - assets/diciembre_like_icon.png
     - assets/diciembre_band_icon.png
+    - assets/febrero_like_icon.png
+    - assets/febrero_band_icon.png
+    - assets/icon_main_octubre.png
+    - assets/icon_main_diciembre.png
+    - assets/icon_main_febrero.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

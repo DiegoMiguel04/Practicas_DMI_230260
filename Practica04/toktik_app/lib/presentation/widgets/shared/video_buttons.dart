@@ -4,16 +4,20 @@ import 'package:toktik_app/config/helpers/human_formats.dart';
 import 'package:toktik_app/domain/entities/video_post.dart';
 import 'package:provider/provider.dart';
 import 'package:toktik_app/presentation/providers/for_you_provider.dart';
+import 'package:toktik_app/config/theme/season_theme.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';
 
 
 class VideoButtons extends StatefulWidget {
 
   final VideoPost video;
+  final bool youtube;
 
   const VideoButtons({
     super.key, 
-    required this.video
+    required this.video,
+    this.youtube = false,
   });
 
   @override
@@ -22,15 +26,19 @@ class VideoButtons extends StatefulWidget {
 
 class _VideoButtonsState extends State<VideoButtons> {
   bool _showSeasonalLike = false;
+  bool _youtubeLiked = false;
   Timer? _seasonalTimer;
 
   @override
   void dispose() { _seasonalTimer?.cancel(); super.dispose(); }
 
   void _toggleLike(ForYouProvider provider, bool isLiked) {
-    provider.toggleLike(widget.video.id);
-    final month = DateTime.now().month;
-    if (!isLiked && (month == 10 || month == 12)) {
+    if (widget.youtube) {
+      setState(() => _youtubeLiked = !_youtubeLiked);
+    } else {
+      provider.toggleLike(widget.video.id);
+    }
+    if (!isLiked && context.read<SeasonProvider>().season.isSeasonal) {
       _seasonalTimer?.cancel();
       setState(() => _showSeasonalLike = true);
       _seasonalTimer = Timer(const Duration(milliseconds: 1050), () {
@@ -43,19 +51,19 @@ class _VideoButtonsState extends State<VideoButtons> {
   Widget build(BuildContext context) {
     final provider = context.watch<ForYouProvider>();
     final video = widget.video;
-    final isLiked = provider.likedVideoIds.contains(video.id);
-    final month = DateTime.now().month;
-    final likeAsset = month == 10 ? 'assets/octubre_like_icon.png' : 'assets/diciembre_like_icon.png';
+    final isLiked = widget.youtube ? _youtubeLiked : provider.likedVideoIds.contains(video.id);
+    final season = context.watch<SeasonProvider>().season;
+    final likeAsset = season.likeAsset;
     return Column(
       children: [
         Stack(clipBehavior: Clip.none, alignment: Alignment.center, children: [
           _CustomIconButton(
-            value: video.likes,
+            value: video.likes + (_youtubeLiked ? 1 : 0),
             iconColor: isLiked ? Colors.red : Colors.white,
             iconData: isLiked ? Icons.favorite : Icons.favorite_border,
             onPressed: () => _toggleLike(provider, isLiked),
           ),
-          if (_showSeasonalLike)
+          if (_showSeasonalLike && likeAsset != null)
             IgnorePointer(
               child: TweenAnimationBuilder<double>(
                 key: ValueKey(_seasonalTimer),
@@ -73,6 +81,13 @@ class _VideoButtonsState extends State<VideoButtons> {
         const SizedBox( height: 20 ),
         _CustomIconButton(value: video.views, iconData: Icons.remove_red_eye_outlined),
 
+        const SizedBox(height: 14),
+        _CustomIconButton(
+          value: 0,
+          iconData: Icons.share_outlined,
+          onPressed: () => _shareLink(context, video.videoUrl),
+        ),
+
         const SizedBox( height: 20 ),
         SpinPerfect(
           infinite: true,
@@ -81,6 +96,14 @@ class _VideoButtonsState extends State<VideoButtons> {
         ),
       ],
     );
+  }
+
+  Future<void> _shareLink(BuildContext context, String url) async {
+    await Clipboard.setData(ClipboardData(text: url));
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('Enlace copiado para compartir')));
   }
 }
 

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:toktik_app/domain/entities/video_post.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +5,10 @@ import 'package:toktik_app/presentation/providers/for_you_provider.dart';
 import 'package:toktik_app/presentation/widgets/shared/video_buttons.dart';
 import 'package:toktik_app/presentation/widgets/video/fullscreen_player.dart';
 import 'package:toktik_app/presentation/widgets/video/youtube_fullscreen_player.dart';
+import 'package:toktik_app/presentation/widgets/video/peertube_embed_player.dart';
+import 'package:toktik_app/presentation/widgets/video/dailymotion_embed_player.dart';
+import 'package:toktik_app/config/dailymotion_config.dart';
+import 'package:toktik_app/config/theme/season_theme.dart';
 
 class VideoScrollableView extends StatefulWidget {
   final List<VideoPost> videos;
@@ -20,8 +23,6 @@ class VideoScrollableView extends StatefulWidget {
 class _VideoScrollableViewState extends State<VideoScrollableView> {
   int _currentPage = 0;
   late final PageController _pageController;
-  Offset? _pointerDownPosition;
-  int? _activePointer;
 
   @override
   void initState() {
@@ -57,37 +58,10 @@ class _VideoScrollableViewState extends State<VideoScrollableView> {
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      behavior: HitTestBehavior.translucent,
-      onPointerDown: (event) {
-        _pointerDownPosition = event.position;
-        _activePointer = event.pointer;
-      },
-      onPointerUp: (event) {
-        final start = _pointerDownPosition;
-        if (!widget.youtube ||
-            !kIsWeb ||
-            start == null ||
-            event.pointer != _activePointer) {
-          return;
-        }
-        _pointerDownPosition = null;
-        _activePointer = null;
-
-        final delta = event.position - start;
-        if (delta.dy.abs() < 64 || delta.dy.abs() <= delta.dx.abs()) return;
-        _goToPage(delta.dy < 0);
-      },
-      onPointerCancel: (_) {
-        _pointerDownPosition = null;
-        _activePointer = null;
-      },
-      child: PageView.builder(
+    return PageView.builder(
         controller: _pageController,
         scrollDirection: Axis.vertical,
-        physics: widget.youtube
-            ? const NeverScrollableScrollPhysics()
-            : const BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         itemCount: widget.videos.length,
         onPageChanged: (index) {
           setState(() => _currentPage = index);
@@ -95,18 +69,35 @@ class _VideoScrollableViewState extends State<VideoScrollableView> {
         },
         itemBuilder: (context, index) {
           final videoPost = widget.videos[index];
+          final isYoutube = videoPost.youtubeVideoId != null;
+          final isPeerTube = videoPost.peerTubeEmbedUrl != null;
+          final isDailymotion = videoPost.dailymotionVideoId != null;
 
           return Stack(
             children: [
               Positioned.fill(
-                child: widget.youtube
+                child: isYoutube
                     ? YoutubeFullScreenPlayer(
                         key: ValueKey(videoPost.youtubeVideoId),
                         videoId: videoPost.youtubeVideoId!,
                         isActive: index == _currentPage,
-                        onVerticalSwipe: _goToPage,
                       )
-                    : FullScreenPlayer(
+                    : isPeerTube
+                        ? PeerTubeEmbedPlayer(
+                            key: ValueKey(videoPost.peerTubeEmbedUrl),
+                            embedUrl: videoPost.peerTubeEmbedUrl!,
+                            thumbnailUrl: videoPost.thumbnailUrl,
+                            isActive: index == _currentPage,
+                          )
+                        : isDailymotion
+                            ? DailymotionEmbedPlayer(
+                                key: ValueKey(videoPost.dailymotionVideoId),
+                                playerId: DailymotionConfig.playerId,
+                                videoId: videoPost.dailymotionVideoId!,
+                                thumbnailUrl: videoPost.thumbnailUrl,
+                                isActive: index == _currentPage,
+                              )
+                        : FullScreenPlayer(
                         caption: videoPost.caption,
                         description: videoPost.description,
                         videoUrl: videoPost.videoUrl,
@@ -117,68 +108,75 @@ class _VideoScrollableViewState extends State<VideoScrollableView> {
                 Positioned(
                   bottom: 40,
                   right: 20,
-                  child: VideoButtons(video: videoPost),
+                  child: VideoButtons(key: ValueKey('drive-${videoPost.id}'), video: videoPost),
                 ),
-              if (!widget.youtube && (DateTime.now().month == 10 || DateTime.now().month == 12))
+              if (widget.youtube)
                 Positioned(
-                  top: 0,
-                  left: 0,
-                  child: _SeasonalRibbon(date: DateTime.now()),
+                  bottom: 40,
+                  right: 20,
+                  child: VideoButtons(
+                    key: ValueKey('youtube-${videoPost.id}'),
+                    video: videoPost,
+                    youtube: true,
+                  ),
+                ),
+              if (widget.youtube)
+                Positioned(
+                  left: 20,
+                  right: 86,
+                  bottom: 48,
+                  child: _DiscoverCaption(videoPost: videoPost),
                 ),
             ],
           );
         },
-      ),
-    );
+      );
   }
 
-  void _goToPage(bool forward) {
-    if (!_pageController.hasClients || widget.videos.isEmpty) return;
-    final nextPage = (_currentPage + (forward ? 1 : -1))
-        .clamp(0, widget.videos.length - 1)
-        .toInt();
-    if (nextPage == _currentPage) return;
-    _pageController.animateToPage(
-      nextPage,
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeOutCubic,
-    );
-  }
 }
 
-class _SeasonalRibbon extends StatelessWidget {
-  const _SeasonalRibbon({required this.date});
-  final DateTime date;
-
+class _DiscoverCaption extends StatelessWidget {
+  const _DiscoverCaption({required this.videoPost});
+  final VideoPost videoPost;
   @override
-  Widget build(BuildContext context) {
-    final october = date.month == 10;
-    final month = october ? 'Octubre' : 'Diciembre';
-    final color = october ? const Color(0xFF6D218E) : const Color(0xFF087A3C);
-    return SafeArea(
-      child: SizedBox(
-        width: 154,
-        height: 112,
-        child: Stack(alignment: Alignment.topLeft, children: [
-          Positioned(
-            left: -43,
-            top: 26,
-            child: Transform.rotate(
-              angle: -0.785398,
-              child: Container(
-                width: 176,
-                height: 34,
-                decoration: BoxDecoration(color: color, boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 5)]),
-                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Image.asset('assets/${october ? 'octubre' : 'diciembre'}_band_icon.png', width: 23, height: 23, fit: BoxFit.contain),
-                  const SizedBox(width: 6),
-                  Text('$month (${date.year})', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                ]),
-              ),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      DecoratedBox(
+          decoration: BoxDecoration(
+          color: videoPost.peerTubeEmbedUrl != null
+              ? const Color(0xFF159B84)
+              : videoPost.dailymotionVideoId != null
+                  ? const Color(0xFF0066DC)
+                  : const Color(0xFFE62117),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            const Icon(Icons.play_arrow_rounded, size: 14, color: Colors.white),
+            const SizedBox(width: 3),
+            Text(
+              videoPost.peerTubeEmbedUrl != null
+                  ? 'PEERTUBE'
+                  : videoPost.dailymotionVideoId != null ? 'DAILYMOTION' : 'YOUTUBE',
+              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.1),
             ),
-          ),
-        ]),
+          ]),
+        ),
       ),
-    );
-  }
+      const SizedBox(height: 8),
+      if (videoPost.creator != null) ...[
+        Text(videoPost.creator!, maxLines: 1, overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: Colors.white70, fontSize: 12, shadows: [Shadow(color: Colors.black87, blurRadius: 7)])),
+        const SizedBox(height: 3),
+      ],
+      Text(videoPost.caption, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700, shadows: [Shadow(color: Colors.black87, blurRadius: 8)])),
+      if (videoPost.description.isNotEmpty) ...[
+        const SizedBox(height: 4),
+        Text(videoPost.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 12, shadows: [Shadow(color: Colors.black87, blurRadius: 7)])),
+      ],
+    ],
+  );
 }
