@@ -13,3 +13,4 @@ Periodo: Septiembre - Diciembre 2026
 |3.|[Yes, No, Maybe — Chat con API de Respuestas Automáticas](https://github.com/DiegoMiguel04/Practicas_DMI_230260/blob/master/Practica03/README.md)|Crear una app de chat en Flutter que responda preguntas del usuario utilizando la API de yesno.wtf, con una distribución de 40% Sí, 40% No y 20% Tal Vez, mostrando además el GIF correspondiente a cada respuesta.|30|Finalizada ✅|
 |4.|[TokTik App](https://github.com/DiegoMiguel04/Practicas_DMI_230260/blob/master/Practica04/README.md)|Aplicación de Reproducción de Videos Verticales|30|Finalizada ✅|
 |5.|[Widgets App](https://github.com/DiegoMiguel04/Practicas_DMI_230260/blob/master/Practica05/README.md)|Aplicación de Widgets|Sin definir|Finalizada ✅|
+|5.|[Cinemapedia App](https://github.com/DiegoMiguel04/Practicas_DMI_230260/blob/master/Practica06/README.md)|Aplicación de peliculas|Sin definir|En Curso 🟨|
