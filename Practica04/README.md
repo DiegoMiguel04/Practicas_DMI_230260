@@ -75,7 +75,7 @@ adb shell run-as com.example.toktik_app cat shared_prefs/FlutterSharedPreference
 
 ## Appetize 
 
-[Ir a la Aplicación en Appetize](https://appetize.io/app/b_silq66cfa7gdbufqwk6xxld3zi)
+[Ir a la Aplicación en Appetize](https://appetize.io/app/b_w22ujwlslcb7h73fjllvqjlxda)
 
 
 ---
