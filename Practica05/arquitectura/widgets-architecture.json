@@ -1,0 +1,207 @@
+{
+    "schema_version":  1,
+    "diagram_type":  "architecture",
+    "meta":  {
+                 "title":  "Arquitectura de Widgets App",
+                 "quality_profile":  "showcase",
+                 "viewBox":  [
+                                 1120,
+                                 720
+                             ]
+             },
+    "components":  [
+                       {
+                           "id":  "entry",
+                           "type":  "frontend",
+                           "label":  "main.dart",
+                           "sublabel":  "ProviderScope - MainApp",
+                           "pos":  [
+                                       52,
+                                       260
+                                   ],
+                           "size":  [
+                                        160,
+                                        76
+                                    ]
+                       },
+                       {
+                           "id":  "material-router",
+                           "type":  "backend",
+                           "label":  "MaterialApp.router",
+                           "sublabel":  "Tema global - GoRouter",
+                           "pos":  [
+                                       280,
+                                       260
+                                   ],
+                           "size":  [
+                                        180,
+                                        76
+                                    ]
+                       },
+                       {
+                           "id":  "navigation",
+                           "type":  "backend",
+                           "label":  "Menu y rutas",
+                           "sublabel":  "GoRouter - MenuItem",
+                           "pos":  [
+                                       525,
+                                       122
+                                   ],
+                           "size":  [
+                                        180,
+                                        76
+                                    ]
+                       },
+                       {
+                           "id":  "screens",
+                           "type":  "frontend",
+                           "label":  "Pantallas Flutter",
+                           "sublabel":  "Inicio y demos de widgets",
+                           "pos":  [
+                                       525,
+                                       340
+                                   ],
+                           "size":  [
+                                        180,
+                                        76
+                                    ]
+                       },
+                       {
+                           "id":  "riverpod",
+                           "type":  "backend",
+                           "label":  "Providers Riverpod",
+                           "sublabel":  "Contador - estado del tema",
+                           "pos":  [
+                                       790,
+                                       122
+                                   ],
+                           "size":  [
+                                        180,
+                                        76
+                                    ]
+                       },
+                       {
+                           "id":  "theme",
+                           "type":  "backend",
+                           "label":  "AppTheme",
+                           "sublabel":  "Material 3 - colores - brillo",
+                           "pos":  [
+                                       790,
+                                       276
+                                   ],
+                           "size":  [
+                                        180,
+                                        76
+                                    ]
+                       },
+                       {
+                           "id":  "external-assets",
+                           "type":  "external",
+                           "label":  "Recursos externos",
+                           "sublabel":  "Picsum - imagenes de red",
+                           "pos":  [
+                                       790,
+                                       470
+                                   ],
+                           "size":  [
+                                        180,
+                                        76
+                                    ]
+                       },
+                       {
+                           "id":  "animate",
+                           "type":  "backend",
+                           "label":  "animate_do",
+                           "sublabel":  "Animaciones de entrada",
+                           "pos":  [
+                                       525,
+                                       520
+                                   ],
+                           "size":  [
+                                        180,
+                                        76
+                                    ]
+                       }
+                   ],
+    "connections":  [
+                        {
+                            "id":  "entry-router",
+                            "from":  "entry",
+                            "to":  "material-router",
+                            "label":  "inicia la aplicacion",
+                            "variant":  "emphasis",
+                            "labelDy":  -38
+                        },
+                        {
+                            "id":  "router-navigation",
+                            "from":  "material-router",
+                            "to":  "navigation",
+                            "label":  "resuelve rutas",
+                            "fromSide":  "top",
+                            "toSide":  "left"
+                        },
+                        {
+                            "id":  "router-screens",
+                            "from":  "material-router",
+                            "to":  "screens",
+                            "variant":  "emphasis"
+                        },
+                        {
+                            "id":  "navigation-screens",
+                            "from":  "navigation",
+                            "to":  "screens",
+                            "label":  "navegacion declarativa",
+                            "fromSide":  "bottom",
+                            "toSide":  "top",
+                            "labelDy":  26
+                        },
+                        {
+                            "id":  "screens-state",
+                            "from":  "screens",
+                            "to":  "riverpod",
+                            "label":  "lee y actualiza estado"
+                        },
+                        {
+                            "id":  "state-theme",
+                            "from":  "riverpod",
+                            "to":  "theme",
+                            "label":  "seleccion de tema",
+                            "fromSide":  "bottom",
+                            "toSide":  "top",
+                            "labelDy":  26
+                        },
+                        {
+                            "id":  "screens-network",
+                            "from":  "screens",
+                            "to":  "external-assets",
+                            "label":  "carga imagenes HTTPS"
+                        },
+                        {
+                            "id":  "screens-animations",
+                            "from":  "screens",
+                            "to":  "animate",
+                            "label":  "efectos de entrada",
+                            "fromSide":  "bottom",
+                            "toSide":  "top",
+                            "labelDy":  26
+                        }
+                    ],
+    "cards":  [
+                  {
+                      "dot":  "cyan",
+                      "title":  "Navegacion y presentacion",
+                      "items":  [
+                                    "GoRouter conecta el menu con cada pantalla",
+                                    "Material 3 aplica el tema seleccionado a la app"
+                                ]
+                  },
+                  {
+                      "dot":  "violet",
+                      "title":  "Estado y recursos",
+                      "items":  [
+                                    "Riverpod gestiona el contador y el tema",
+                                    "Las listas de imagenes consultan Picsum por Internet"
+                                ]
+                  }
+              ]
+}
