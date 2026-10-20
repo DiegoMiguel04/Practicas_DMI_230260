@@ -8,7 +8,6 @@ import 'package:toktik_app/presentation/widgets/video/youtube_fullscreen_player.
 import 'package:toktik_app/presentation/widgets/video/peertube_embed_player.dart';
 import 'package:toktik_app/presentation/widgets/video/dailymotion_embed_player.dart';
 import 'package:toktik_app/config/dailymotion_config.dart';
-import 'package:toktik_app/config/theme/season_theme.dart';
 
 class VideoScrollableView extends StatefulWidget {
   final List<VideoPost> videos;
