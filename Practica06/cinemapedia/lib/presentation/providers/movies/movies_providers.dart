@@ -17,7 +17,7 @@ final popularMoviesProvider = StateNotifierProvider<MoviesNotifier, List<Movie>>
     fetchMoreMovies: fetchMoreMovies
   );
 });
-
+  
 final upcomingMoviesProvider = StateNotifierProvider<MoviesNotifier, List<Movie>>((ref) {
   final fetchMoreMovies = ref.watch( movieRepositoryProvider ).getUpcoming;
   return MoviesNotifier(
