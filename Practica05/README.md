@@ -47,6 +47,9 @@ El diagrama muestra la estructura de `widgets_app`: el punto de entrada, el enru
 
 ![Diagrama de arquitectura de Widgets App](images/architecture.png)
 
+## Appetize
+[Apliación en Appetize](https://appetize.io/app/b_twopymsth2n5wgayruvu6t5hii)
+
 ## Evidencias
 
 **Inicio y navegación**
