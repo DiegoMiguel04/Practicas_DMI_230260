@@ -11,11 +11,16 @@ import 'package:cinemapedia/domain/entities/movie.dart';
 
 class MoviedbDatasource extends MoviesDatasource {
 
-  final dio = Dio(BaseOptions(
+  final String language;
+  final String region;
+  MoviedbDatasource({this.language = 'es-MX', this.region = 'MX'});
+
+  Dio get dio => Dio(BaseOptions(
     baseUrl: 'https://api.themoviedb.org/3',
     queryParameters: {
       'api_key': Environment.theMovieDbKey,
-      'language': 'es-MX'
+      'language': language,
+      'region': region,
     }
   ));
 
