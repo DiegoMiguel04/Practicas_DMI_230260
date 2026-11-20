@@ -1,0 +1,404 @@
+﻿<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Arquitectura de Cinemapedia</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: lienzo apaisado con capas como bandas punteadas, cajas agrupadas, lÃ­neas ortogonales y etiquetas visibles. Barra de vistas guiadas arriba, dock de detalle debajo. */
+:root{
+  --bg:#fff1f6; --panel:#fffafd; --node:#ffffff; --grid:#f6d6e2; --line:#e7b6ca; --fg:#54263b; --muted:#8a5b70; --hi:#b83267; --dot:#d63384;
+  --c-config:#a855f7; --c-ui:#db2777; --c-state:#be185d; --c-domain:#c24170; --c-infra:#e11d48; --c-ext:#9d174d; --c-plat:#9f5f78;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace; --sans:"IBM Plex Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#24121c; --panel:#321a28; --node:#2b1722; --grid:#482536; --line:#714055; --fg:#ffe4ef; --muted:#d1a0b4; --hi:#ff8fba; --dot:#fb6fa9;
+  --c-config:#c4a1ff; --c-ui:#ff79b5; --c-state:#f472b6; --c-domain:#f9a8d4; --c-infra:#fb7185; --c-ext:#ff8fba; --c-plat:#d6a0b7; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#24121c; --panel:#321a28; --node:#2b1722; --grid:#482536; --line:#714055; --fg:#ffe4ef; --muted:#d1a0b4; --hi:#ff8fba; --dot:#fb6fa9;
+  --c-config:#c4a1ff; --c-ui:#ff79b5; --c-state:#f472b6; --c-domain:#f9a8d4; --c-infra:#fb7185; --c-ext:#ff8fba; --c-plat:#d6a0b7; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.5;
+  padding-block:16px 36px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+.wrap{max-width:1500px;margin:0 auto;display:grid;gap:12px}
+.head{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+h1{margin:0;font-family:var(--mono);font-weight:700;font-size:clamp(18px,2.6vw,26px);display:flex;align-items:center;gap:12px;text-wrap:balance}
+h1::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--dot);flex:none}
+h1 small{font-weight:400;color:var(--muted);font-size:.6em}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:7px 13px;cursor:pointer;font-family:var(--mono);font-size:12.5px;line-height:1.2}
+.btn:hover{border-color:var(--muted)}
+.btn[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+.views{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:8px}
+.vhead{display:grid;gap:2px;padding:2px 12px 2px 6px;align-content:center;min-width:150px}
+.vhead .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dot)}
+.vhead .t{font-family:var(--mono);font-weight:700;font-size:13px}
+.vplay{align-self:center}
+.vchips{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;flex:1;min-width:0}
+.vchip{display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:transparent;border-radius:8px;padding:8px 11px;cursor:pointer;text-align:left;font-family:var(--mono);font-size:12px;font-weight:500;min-width:0}
+.vchip:hover{border-color:var(--muted)}
+.vchip .n{flex:none;width:22px;height:22px;border-radius:50%;border:1px solid var(--dot);color:var(--dot);display:grid;place-items:center;font-size:10px}
+.vchip[aria-pressed="true"]{border-color:var(--dot);background:color-mix(in srgb,var(--dot) 12%,transparent)}
+.vchip[aria-pressed="true"] .n{background:var(--dot);color:var(--bg)}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:3px 10px 3px 8px;cursor:pointer;font-size:12px}
+.chip i{width:9px;height:9px;border-radius:3px;background:var(--c)}
+.chip[aria-pressed="false"]{opacity:.4}
+.chip[aria-pressed="false"] i{background:transparent;box-shadow:inset 0 0 0 1.5px var(--c)}
+.leg2{color:var(--muted);font-size:12px;display:inline-flex;align-items:center;gap:6px}
+.leg2 svg{width:30px;height:8px}
+
+.stage{border:1px solid var(--line);border-radius:12px;background:var(--bg);overflow-x:auto}
+#dg{display:block;width:100%;min-width:900px;height:auto;margin:0 auto}
+.stage.fit #dg{max-height:calc(100vh - 235px)}
+@media (max-width:980px){.stage.fit #dg{max-height:none}}
+#dg text{font-family:var(--mono)}
+.gl{stroke:var(--grid);stroke-width:1}
+.bnd rect{fill:none;stroke:var(--bc,var(--line));stroke-width:1.2;stroke-dasharray:6 5;opacity:.7}
+.bnd text{font-size:11px;font-weight:700;letter-spacing:.02em;fill:var(--bc,var(--muted))}
+.node{cursor:pointer;transition:opacity .15s}
+.node rect.box{fill:var(--node);stroke:var(--c);stroke-width:1.6}
+.node:hover rect.box{stroke-width:2.4}
+.node .t{font-size:12.5px;font-weight:700;fill:var(--fg)}
+.node .s{font-size:9.5px;fill:var(--muted)}
+.node .b{font-size:8.5px;fill:var(--c);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.node.sel rect.box{stroke:var(--hi);stroke-width:3}
+.node.dim{opacity:.2}
+.node.off{opacity:.06;pointer-events:none}
+.node.ghost rect.box{stroke-dasharray:4 3}
+.node:focus-visible{outline:none}
+.node:focus-visible rect.box{stroke:var(--hi);stroke-width:3}
+.chipn rect.box{fill:var(--node);stroke:var(--c);stroke-width:1.3}
+.chipn .t{font-size:11px;font-weight:500}
+.edge{fill:none;stroke:var(--muted);stroke-width:1.4;opacity:.65;transition:opacity .15s}
+.edge.inf{stroke-dasharray:3 4}
+.edge.on{stroke:var(--hi);stroke-width:2.2;opacity:1}
+.edge.next{opacity:.45}
+.edge.cur{stroke-width:2.8;stroke-dasharray:7 6;animation:flow .9s linear infinite}
+.edge.dimmed{opacity:.1}.edge.off{opacity:.04}
+@keyframes flow{to{stroke-dashoffset:-13}}
+.el{font-size:9.5px;fill:var(--muted);paint-order:stroke;stroke:var(--bg);stroke-width:4px;stroke-linejoin:round;pointer-events:none}
+.el.on{fill:var(--fg);font-weight:700}
+.el.dimmed{opacity:.15}.el.off{opacity:0}
+.hit{fill:none;stroke:transparent;stroke-width:12;cursor:help}
+
+.dock{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:14px 16px;display:grid;gap:10px}
+.dock h2{margin:0;font-family:var(--mono);font-size:15px}
+.dock h3{margin:0;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.dock p{margin:0;max-width:80ch}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.cols>div{display:grid;gap:6px;align-content:start;min-width:0}
+.badge{font-family:var(--mono);font-size:11px;color:var(--c);font-weight:700;display:inline-flex;gap:6px;align-items:center}
+.badge i{width:9px;height:9px;border-radius:2px;background:var(--c)}
+.files{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.files li{border:1px solid var(--line);border-radius:6px;padding:6px 9px;min-width:0}
+.files b{font-family:var(--mono);font-size:12px}
+.files code{display:block;font-family:var(--mono);font-size:10.5px;color:var(--muted);word-break:break-all}
+.files span{display:block;font-size:12px;color:var(--muted)}
+.lk{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.lk button{width:100%;text-align:left;border:1px solid var(--line);background:transparent;border-radius:6px;padding:5px 9px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:12.5px}
+.lk button:hover{border-color:var(--muted)}
+.lk em{font-style:normal;color:var(--muted);font-size:11.5px;font-family:var(--mono)}
+.steps{display:flex;flex-wrap:wrap;gap:6px}
+.steps button{border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 11px;cursor:pointer;font-size:12px;font-family:var(--mono)}
+.steps button[aria-current="step"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.steps button.done{border-color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted)}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.notes>div{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:12px 14px}
+.notes h3{margin:0 0 4px;font-family:var(--mono);font-size:12.5px;display:flex;align-items:center;gap:8px}
+.notes h3 i{width:8px;height:8px;border-radius:50%;background:var(--d)}
+.notes p{margin:0;color:var(--muted);font-size:13px}
+
+body.present .views .vplay~*{}
+body.present .legend,body.present .dock,body.present .notes{display:none}
+body.present .stage.fit #dg{max-height:calc(100vh - 150px)}
+@media (prefers-reduced-motion:reduce){.edge.cur{animation:none}.node,.edge{transition:none}}
+/* Acabado visual rosa: mejor jerarquÃ­a, superficies suaves y lectura clara. */
+body{background:radial-gradient(ellipse at 8% 0%,#ffd8e8 0,transparent 34%),radial-gradient(ellipse at 96% 14%,#ffe4ef 0,transparent 28%),var(--bg)}
+.wrap{gap:16px}.head{position:relative;padding:22px 24px;border:1px solid #edc3d3;border-radius:20px;background:linear-gradient(120deg,rgba(255,255,255,.96),rgba(255,242,248,.94));box-shadow:0 12px 35px rgba(133,45,83,.09)}
+h1{font-size:clamp(21px,3vw,32px);letter-spacing:-.04em;color:#54263b}h1::before{box-shadow:0 0 0 6px #fce1ec}h1 small{display:block;margin-top:5px;font-family:var(--sans);font-size:12px;letter-spacing:.01em;color:#986278}
+.identity{display:flex;align-items:center;gap:8px;margin-top:8px;color:#8a5b70;font-size:12px;font-weight:600}.identity strong{color:#9d174d}
+.btn{border-color:#e8b9cc;background:rgba(255,255,255,.85);border-radius:999px;padding:9px 15px;box-shadow:0 3px 10px rgba(120,40,75,.05);transition:transform .18s,box-shadow .18s,border-color .18s}.btn:hover,.vchip:hover{transform:translateY(-1px);border-color:#d63384;box-shadow:0 6px 16px rgba(177,44,103,.12)}
+.btn[aria-pressed="true"],.steps button[aria-current="step"]{background:linear-gradient(135deg,#c02665,#e04c8b);color:#fff;border-color:#c02665}
+.views{padding:12px;border-radius:16px;border-color:#edc3d3;background:rgba(255,250,253,.92);box-shadow:0 8px 24px rgba(133,45,83,.06)}.vhead{min-width:175px}.vhead .k{color:#be185d}.vhead .t{font-size:14px;color:#54263b}.vplay{background:#fff0f6;color:#9d174d;border-color:#e7b6ca}
+.vchips{grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}.vchip{border-color:#efd0dd;border-radius:12px;background:#fff;color:#54263b;padding:9px 12px;transition:transform .18s,box-shadow .18s,border-color .18s}.vchip .n{background:#fff0f6;border-color:#e6a8c1;color:#b83267}.vchip[aria-pressed="true"]{background:#ffe5ef;border-color:#d63384;box-shadow:inset 0 0 0 1px #f2b4ce}.vchip[aria-pressed="true"] .n{background:#d63384;color:#fff}
+.legend{padding:0 4px}.chip{background:#fff;border-color:#efd0dd;padding:5px 11px}.stage{border-radius:18px;border-color:#e7b6ca;background:#fffafd;box-shadow:0 12px 32px rgba(133,45,83,.08)}
+.node rect.box,.chipn rect.box{filter:drop-shadow(0 3px 4px rgba(91,28,57,.08));transition:filter .18s,stroke-width .18s}.node:hover rect.box{filter:drop-shadow(0 6px 8px rgba(157,23,77,.18))}.edge{stroke:#a66b84}.edge.on{stroke:#c02665}
+.dock,.notes>div{border-color:#edc3d3;border-radius:16px;background:rgba(255,250,253,.96);box-shadow:0 8px 24px rgba(133,45,83,.06)}.dock{padding:18px 20px}.dock h2{color:#54263b;font-size:17px}.files li,.lk button{background:#fff;border-color:#efd0dd;border-radius:9px}.steps button{background:#fff;border-color:#efd0dd;border-radius:999px}.notes h3{color:#54263b}
+@media(max-width:700px){.head{padding:18px;align-items:flex-start}.tools{width:100%}.identity{flex-wrap:wrap}.views{gap:8px}.vhead{min-width:100%}.vchips{grid-template-columns:1fr 1fr}.vchip{font-size:11px;padding:8px}.stage{border-radius:12px}}
+@media(prefers-reduced-motion:reduce){.btn,.vchip,.node rect.box{transition:none}}
+</style>
+
+<div class="wrap">
+  <div class="head">
+    <div><h1>Arquitectura de Cinemapedia <small>Flutter Â· providers Â· Isar Â· The Movie DB Â· pelÃ­culas y series</small></h1></div>
+    <div class="tools">
+      <button class="btn" id="theme">Tema</button>
+      <button class="btn" id="fit" aria-pressed="true">Ajustar</button>
+      <button class="btn" id="present">Presentar</button>
+    </div>
+  </div>
+
+  <div class="views">
+    <div class="vhead"><span class="k" id="vk">Vistas guiadas 0 / 4</span><span class="t">Explora el sistema</span></div>
+    <button class="btn vplay" id="play">â–¶ Reproducir</button>
+    <div class="vchips" id="vchips"></div>
+  </div>
+
+  <div class="legend" id="legend">
+    <span class="leg2"><svg viewBox="0 0 30 8" aria-hidden="true"><line x1="0" y1="4" x2="30" y2="4" stroke="currentColor" stroke-width="1.6"/></svg>conexiÃ³n</span>
+    <span class="leg2"><svg viewBox="0 0 30 8" aria-hidden="true"><line x1="0" y1="4" x2="30" y2="4" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 4"/></svg>inferida por el nombre del archivo</span>
+  </div>
+
+  <div class="stage fit" id="stage"><svg id="dg" role="img" aria-label="Diagrama de Cinemapedia agrupado por capas: configuraciÃ³n, presentaciÃ³n y estado, dominio e infraestructura, servicios externos, almacenamiento local y plataformas. Cada caja agrupa varios archivos; selecciona una para ver su detalle."></svg></div>
+
+  <div class="dock" id="dock" aria-live="polite"></div>
+
+  <div class="notes">
+    <div style="--d:#22d3ee"><h3><i></i>Flujo de datos</h3><p>Los providers piden las pelÃ­culas y series al repositorio, que las trae de The Movie DB y las convierte con mappers a entidades.</p></div>
+    <div style="--d:#34d399"><h3><i></i>Idiomas</h3><p>El idioma se elige en ConfiguraciÃ³n y se recuerda al reabrir la app. Al cambiarlo se recrean los repositorios y se recargan los datos; si falta la traducciÃ³n, se usa el inglÃ©s como respaldo.</p></div>
+    <div style="--d:#fbbf24"><h3><i></i>Sin backend propio</h3><p>La app consulta The Movie DB como servicio externo y guarda en el dispositivo los favoritos (Isar) y el idioma elegido (shared_preferences). La web no estÃ¡ soportada porque Isar no corre en navegador.</p></div>
+  </div>
+</div>
+
+<script>
+(function(){
+const W=1400, NW=190, NH=62, CX=i=>56+280*i, RY=i=>78+124*i;
+const LAYERS=[
+ {id:'config',short:'ConfiguraciÃ³n',c:'--c-config'},{id:'ui',short:'PresentaciÃ³n',c:'--c-ui'},{id:'state',short:'Providers',c:'--c-state'},
+ {id:'domain',short:'Dominio',c:'--c-domain'},{id:'infra',short:'Infraestructura',c:'--c-infra'},{id:'ext',short:'Externo y local',c:'--c-ext'},{id:'plat',short:'Plataformas',c:'--c-plat'}];
+const LP='lib/presentation/', LI='lib/infrastructure/', LD='lib/domain/';
+const N=[
+ {id:'arranque',l:'config',c:2,r:0,t:'Arranque',s:'main.dart Â· .env',d:'Inicia la app, lee la API key del archivo .env y las preferencias guardadas (el Ãºltimo idioma elegido), y monta MaterialApp.router con el tema y el idioma activos.',f:[['main.dart','lib/main.dart','Punto de entrada.'],['environment.dart','lib/config/constants/environment.dart','Constantes de entorno y API key del .env.']]},
+ {id:'rutas',l:'config',c:1,r:0,t:'Rutas',s:'AppRouter Â· navegaciÃ³n',d:'Define las rutas y la navegaciÃ³n entre pantallas.',f:[['app_router.dart','lib/config/router/app_router.dart','Rutas de la app.']]},
+ {id:'tema',l:'config',c:0,r:0,t:'Tema e idiomas',s:'AppTheme Â· i18n Â· EN base',d:'Tema visual, idiomas disponibles y textos traducidos. Si falta una traducciÃ³n se usa el inglÃ©s.',f:[['app_theme.dart','lib/config/theme/app_theme.dart','Tema visual.'],['app_language.dart','lib/config/i18n/app_language.dart','Idiomas disponibles.'],['app_strings.dart','lib/config/i18n/app_strings.dart','Textos traducidos.']]},
+
+ {id:'pantallas',l:'ui',c:1,r:1,t:'Pantallas',s:'Splash Â· Home Â· Detalle',d:'Pantallas de la app. El detalle de una pelÃ­cula o serie muestra la clasificaciÃ³n de edad del paÃ­s elegido, reproduce el trÃ¡iler y permite marcar favoritos.',f:[['splash_screen.dart',LP+'screens/splash/splash_screen.dart','Pantalla de arranque.'],['home_screen.dart',LP+'screens/movies/home_screen.dart','Pantalla principal. Muestra las vistas y el menÃº lateral.'],['movie_screen.dart',LP+'screens/movies/movie_screen.dart','Detalle de una pelÃ­cula o serie, con su clasificaciÃ³n de edad.']]},
+ {id:'vistas',l:'ui',c:2,r:1,t:'Vistas',s:'Inicio Â· Populares Â· Favs',d:'Vistas que muestra la pantalla principal. SegÃºn el catÃ¡logo elegido (pelÃ­culas o series) leen unos providers u otros con ref.watch y ref.read.',f:[['home_view.dart',LP+'views/movies/home_view.dart','Inicio: slideshow y listas horizontales de pelÃ­culas o series.'],['popular_view.dart',LP+'views/movies/popular_view.dart','Populares en cuadrÃ­cula.'],['favorites_view.dart',LP+'views/movies/favorites_view.dart','PelÃ­culas favoritas.']]},
+ {id:'widgets',l:'ui',c:3,r:1,t:'Widgets y bÃºsqueda',s:'Slideshow Â· listas Â· menÃº',d:'Componentes reutilizables. El menÃº lateral tiene el apartado de ConfiguraciÃ³n (contenido e idioma) y los carruseles cargan los pÃ³sters de TMDB.',f:[['movies_slideshow.dart',LP+'widgets/movies/movies_slideshow.dart','Carrusel principal.'],['movie_horizontal_listview.dart',LP+'widgets/movies/movie_horizontal_listview.dart','Lista horizontal de pelÃ­culas.'],['movie_masonry.dart',LP+'widgets/movies/movie_masonry.dart','CuadrÃ­cula masonry.'],['side_menu.dart',LP+'widgets/shared/side_menu.dart','MenÃº lateral con ConfiguraciÃ³n: pelÃ­culas o series e idioma.'],['search_movie_delegate.dart',LP+'delegates/search_movie_delegate.dart','Delegado de bÃºsqueda.']]},
+
+ {id:'pFav',l:'state',c:0,r:2,t:'Provider favoritos',s:'guarda y lee en Isar',d:'Estado de las pelÃ­culas favoritas. Lee y escribe a travÃ©s de Isar.',f:[['favorite_movies_provider.dart',LP+'providers/storage/favorite_movies_provider.dart','Favoritos del usuario.']]},
+ {id:'pMovies',l:'state',c:2,r:2,t:'Providers pelÃ­culas',s:'listas Â· detalle Â· actores',d:'Estado de las listas, el detalle, los actores, la bÃºsqueda y la clasificaciÃ³n de edad. Piden cada pÃ¡gina al repositorio.',f:[['movies_providers.dart',LP+'providers/movies/movies_providers.dart','Listas de pelÃ­culas por pÃ¡gina.'],['movie_info_provider.dart',LP+'providers/movies/movie_info_provider.dart','Detalle de una pelÃ­cula.'],['actors_by_movie_provider.dart',LP+'providers/actors/actors_by_movie_provider.dart','Actores de una pelÃ­cula.'],['search_movies_provider.dart',LP+'providers/search/search_movies_provider.dart','Estado de la bÃºsqueda (pelÃ­culas o series).'],['movie_certification_provider.dart',LP+'providers/movies/movie_certification_provider.dart','ClasificaciÃ³n de edad segÃºn el paÃ­s del idioma.']]},
+ {id:'pLang',l:'state',c:3,r:2,t:'Provider config',s:'idioma Â· catÃ¡logo Â· prefs',d:'ConfiguraciÃ³n de la app. El idioma activo se guarda en el dispositivo; al cambiarlo se recrean los repositorios y se actualiza el locale. TambiÃ©n guarda si se ven pelÃ­culas o series.',f:[['language_provider.dart',LP+'providers/language/language_provider.dart','Idioma activo (se recuerda al reabrir la app).'],['catalog_type_provider.dart',LP+'providers/settings/catalog_type_provider.dart','CatÃ¡logo activo: pelÃ­culas o series.'],['shared_preferences_provider.dart',LP+'providers/settings/shared_preferences_provider.dart','Preferencias guardadas en el dispositivo.']]},
+ {id:'pSeries',l:'state',c:1,r:2,t:'Providers series',s:'listas de series',d:'Estado de las listas de series (en emisiÃ³n, se emiten hoy, populares y mejor calificadas) con scroll infinito. Piden cada pÃ¡gina al repositorio.',f:[['series_providers.dart',LP+'providers/series/series_providers.dart','Listas de series y carrusel.']]},
+
+ {id:'contratos',l:'domain',c:2,r:3,t:'Contratos',s:'Repository Â· Datasources',d:'Interfaces abstractas que usan los providers (pelÃ­culas, series y clasificaciÃ³n de edad). AÃ­slan la app de la API concreta.',f:[['movies_repository.dart',LD+'repositories/movies_repository.dart','Contrato del repositorio.'],['movies_datasource.dart',LD+'datasources/movies_datasource.dart','Contrato de la fuente de datos.'],['local_storage_datasource.dart',LD+'datasources/local_storage_datasource.dart','Contrato del almacenamiento local.']]},
+ {id:'entidades',l:'domain',c:3,r:3,t:'Entidades',s:'Movie Â· Actor Â· Video',d:'Clases del dominio. No dependen de la API. Las series se guardan como Movie con el id en negativo para no chocar con una pelÃ­cula.',f:[['entities/',LD+'entities/','Movie, Actor y Video.']]},
+
+ {id:'isarDs',l:'infra',c:0,r:4,t:'Isar datasource',s:'favoritos locales',d:'Lee y escribe los favoritos en la base de datos Isar.',f:[['isar_datasource.dart',LI+'datasources/isar_datasource.dart','Acceso a Isar.']]},
+ {id:'repoImpl',l:'infra',c:1,r:4,t:'Repositorios impl',s:'Movie Â· LocalStorage',d:'Implementan los contratos del dominio y delegan en los datasources.',f:[['movie_repository_impl.dart',LI+'repositories/movie_repository_impl.dart','Implementa MoviesRepository.'],['local_storage_repository_impl.dart',LI+'repositories/local_storage_repository_impl.dart','Implementa el repositorio local.']]},
+ {id:'mappers',l:'infra',c:2,r:4,t:'Mappers',s:'JSON â†’ entidades',d:'Convierten el JSON de TMDB (pelÃ­culas y series) en entidades del dominio.',f:[['movie_mapper.dart',LI+'mappers/movie_mapper.dart','JSON de pelÃ­cula a Movie.'],['tv_mapper.dart',LI+'mappers/tv_mapper.dart','JSON de serie a Movie (id negativo).'],['actor_mapper.dart',LI+'mappers/actor_mapper.dart','JSON a Actor.'],['video_mapper.dart',LI+'mappers/video_mapper.dart','JSON a Video.']]},
+ {id:'datasources',l:'infra',c:3,r:4,t:'Datasources TMDB',s:'Moviedb Â· Actor Moviedb',d:'Hacen GET a The Movie DB con el idioma elegido, usando la API key de environment.dart. Piden pelÃ­culas (/movie), series (/tv) y las clasificaciones por paÃ­s.',f:[['moviedb_datasource.dart',LI+'datasources/moviedb_datasource.dart','PelÃ­culas, series y clasificaciÃ³n de edad.'],['actor_moviedb_datasource.dart',LI+'datasources/actor_moviedb_datasource.dart','Actores.']]},
+
+ {id:'imgs',l:'ext',c:4,r:1,t:'ImÃ¡genes TMDB',s:'image.tmdb.org',d:'Servidor de pÃ³sters y fondos.',f:[['image.tmdb.org','https://image.tmdb.org','PÃ³sters.']]},
+ {id:'yt',l:'ext',c:4,r:2,t:'YouTube',s:'youtube_player_flutter',d:'Reproduce los trÃ¡ilers en la pantalla de detalle.',f:[['youtube_player_flutter','paquete de Flutter','Reproductor.']]},
+ {id:'tmdb',l:'ext',c:4,r:4,t:'The Movie DB',s:'api.themoviedb.org/3',d:'API REST de pelÃ­culas. Recibe el idioma en cada GET.',f:[['api.themoviedb.org/3','https://api.themoviedb.org/3','API REST.']]},
+ {id:'prefs',l:'ext',c:4,r:3,t:'Preferencias',s:'shared_preferences',d:'Guarda en el dispositivo el idioma elegido para recordarlo la prÃ³xima vez que se abra la app.',f:[['shared_preferences','paquete de Flutter','Guarda el idioma.'],['main.dart','lib/main.dart','Lo inicializa y lo entrega a los providers.']]},
+ {id:'isarDb',l:'ext',c:0,r:5,t:'Isar (local)',s:'base de datos en el equipo',d:'Base de datos local del dispositivo donde persisten los favoritos.',f:[['Isar','en el dispositivo','Persistencia.']]}
+];
+const PLAT=[['android','Android','android/'],['ios','iOS','ios/'],['windows','Windows','windows/'],['macos','macOS','macos/'],['linux','Linux','linux/'],['apk','APK release','build/app/outputs/flutter-apk/app-release.apk'],['web','Web (no)','Isar no corre en navegador']];
+// edges: id,a,b,label,kind,opts
+const E=[
+ ['arr-rutas','arranque','rutas','define rutas','h'],
+ ['arr-tema','arranque','tema','tema e idioma','top'],
+ ['rutas-pant','rutas','pantallas','navega a','v'],
+ ['pant-vistas','pantallas','vistas','muestra','h'],
+ ['vistas-widgets','vistas','widgets','compone','h'],
+ ['vistas-pMovies','vistas','pMovies','ref.watch / ref.read','v'],
+ ['widgets-pLang','widgets','pLang','idioma y contenido','v'],
+ ['vistas-pSeries','vistas','pSeries','ref.watch (series)','v',{da:-40,ch:280}],
+ ['pSeries-contr','pSeries','contratos','pide series','v',{db:-40}],
+ ['pLang-prefs','pLang','prefs','guarda el idioma','v',{da:40}],
+ ['widgets-imgs','widgets','imgs','pÃ³ster','h'],
+ ['pant-yt','pantallas','yt','reproduce el trÃ¡iler','v',{da:30}],
+ ['pant-pFav','pantallas','pFav','marca favorito','v',{da:-30}],
+ ['pMovies-contr','pMovies','contratos','pide la pÃ¡gina','v'],
+ ['pLang-contr','pLang','contratos','recrea con el idioma','v',{db:40}],
+ ['pLang-arr','pLang','arranque','cambia el locale','gut'],
+ ['contr-repo','contratos','repoImpl','implementa','v',{da:-30,db:-30}],
+ ['repo-ds','repoImpl','datasources','usa','arc',{da:30,db:0}],
+ ['ds-tmdb','datasources','tmdb','GET con idioma','h',{em:1}],
+ ['ds-map','datasources','mappers','JSON a Movie','h'],
+ ['map-ent','mappers','entidades','mapea a','v',{da:30,db:0}],
+ ['pFav-isar','pFav','isarDs','guarda y lee','v'],
+ ['isar-db','isarDs','isarDb','persiste en','v']
+].map(a=>({id:a[0],a:a[1],b:a[2],t:a[3],k:a[4],o:a[5]||{},em:!!(a[5]&&a[5].em)}));
+const VIEWS=[
+ {id:'peliculas',label:'Flujo de pelÃ­culas',note:'La app define rutas, abre la pantalla principal y los providers piden las pelÃ­culas al repositorio, que las trae de The Movie DB y las convierte en entidades.',steps:['arr-rutas','rutas-pant','pant-vistas','vistas-pMovies','pMovies-contr','contr-repo','repo-ds','ds-tmdb','ds-map','map-ent']},
+ {id:'idioma',label:'Cambio de idioma',note:'En ConfiguraciÃ³n (menÃº lateral) se elige el idioma: se guarda en el dispositivo para recordarlo, se actualiza el locale de la app y se recargan los datos con el nuevo idioma.',steps:['vistas-widgets','widgets-pLang','pLang-prefs','pLang-arr','pLang-contr','contr-repo','repo-ds','ds-tmdb']},
+ {id:'series',label:'Series y catÃ¡logo',note:'En ConfiguraciÃ³n se elige Series. La vista pide las listas al provider de series, que llama al repositorio y consulta los endpoints /tv de The Movie DB. Cada serie se convierte en Movie con id negativo.',steps:['widgets-pLang','vistas-pSeries','pSeries-contr','contr-repo','repo-ds','ds-tmdb','ds-map']},
+ {id:'favoritos',label:'Favoritos',note:'Desde el detalle de una pelÃ­cula el provider guarda y lee los favoritos en Isar, la base de datos local.',steps:['pant-pFav','pFav-isar','isar-db']},
+ {id:'media',label:'PÃ³sters y trÃ¡iler',note:'Los widgets cargan los pÃ³sters desde image.tmdb.org y el detalle reproduce el trÃ¡iler con YouTube.',steps:['vistas-widgets','widgets-imgs','pant-yt']}
+];
+const BND=[
+ {t:'ConfiguraciÃ³n y arranque',c:'--c-config',x:0,y:0,w:3,h:1,rows:[0,0]},
+ {t:'PresentaciÃ³n y estado',c:'--c-ui',cols:[0,3],rows:[1,2]},
+ {t:'Dominio e infraestructura',c:'--c-domain',cols:[0,3],rows:[3,4]},
+ {t:'Servicios y preferencias',c:'--c-ext',cols:[4,4],rows:[1,4]},
+ {t:'Local',c:'--c-ext',cols:[0,0],rows:[5,5]}
+];
+BND[0].cols=[0,2];
+
+const NS='http://www.w3.org/2000/svg', $=s=>document.querySelector(s);
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nodeById={},edgeById={},layerVar=id=>LAYERS.find(l=>l.id===id).c;
+N.forEach(n=>{n.x=CX(n.c);n.y=RY(n.r);n.w=NW;n.h=NH;nodeById[n.id]=n;n.in=[];n.out=[]});
+E.forEach(e=>{edgeById[e.id]=e;e.A=nodeById[e.a];e.B=nodeById[e.b];e.A.out.push(e);e.B.in.push(e)});
+
+// --- routing
+const cx=n=>n.x+n.w/2, cyy=n=>n.y+n.h/2, top=n=>n.y, bot=n=>n.y+n.h, rgt=n=>n.x+n.w, lft=n=>n.x;
+const GUT=rgt(nodeById.pLang)+30;
+E.forEach(e=>{
+  const A=e.A,B=e.B,o=e.o,da=o.da||0,db=o.db||0; let pts,lx,ly,anchor='middle';
+  if(e.k==='h'){
+    const y=cyy(A); const right=B.x>A.x;
+    pts=[[right?rgt(A):lft(A),y],[right?lft(B):rgt(B),y]]; lx=(pts[0][0]+pts[1][0])/2; ly=y-6;
+  } else if(e.k==='v'){
+    const down=B.y>A.y; const xa=cx(A)+da, xb=cx(B)+db;
+    const y1=down?bot(A):top(A), y2=down?top(B):bot(B); const ch=(o.ch!==undefined)?o.ch:(y1+y2)/2;
+    if(Math.abs(xa-xb)<1){pts=[[xa,y1],[xb,y2]]; lx=xa+7; ly=y1+(y2-y1)*(down?.72:.28)+3; anchor='start'}
+    else {pts=[[xa,y1],[xa,ch],[xb,ch],[xb,y2]]; lx=(xa+xb)/2; ly=ch-5}
+  } else if(e.k==='arc'){
+    const xa=cx(A)+da, xb=cx(B)+db, y=top(A)-14;
+    pts=[[xa,top(A)],[xa,y],[xb,y],[xb,top(B)]]; lx=(xa+xb)/2; ly=y-5;
+  } else if(e.k==='top'){
+    const xa=cx(A)-30, xb=cx(B), y=top(A)-7;
+    pts=[[xa,top(A)],[xa,y],[xb,y],[xb,top(B)]]; lx=(xa+xb)/2; ly=y-5;
+  } else if(e.k==='gut'){
+    const ya=cyy(A), yb=cyy(B);
+    pts=[[rgt(A),ya],[GUT,ya],[GUT,yb],[rgt(B),yb]]; lx=(GUT+rgt(B))/2; ly=yb-6;
+  }
+  e.pts=pts; e.lx=Math.min(W-80,Math.max(80,lx)); e.ly=ly; e.an=anchor;
+  e.d=rp(pts,8);
+});
+function rp(p,r){let d=`M${p[0][0]} ${p[0][1]}`;
+  for(let i=1;i<p.length-1;i++){const a=p[i-1],b=p[i],c=p[i+1];
+    const l1=Math.hypot(b[0]-a[0],b[1]-a[1]),l2=Math.hypot(c[0]-b[0],c[1]-b[1]),k=Math.min(r,l1/2,l2/2);
+    const p1=[b[0]-(b[0]-a[0])/l1*k,b[1]-(b[1]-a[1])/l1*k],p2=[b[0]+(c[0]-b[0])/l2*k,b[1]+(c[1]-b[1])/l2*k];
+    d+=`L${p1[0]} ${p1[1]}Q${b[0]} ${b[1]} ${p2[0]} ${p2[1]}`}
+  const z=p[p.length-1]; return d+`L${z[0]} ${z[1]}`}
+
+// --- draw
+const svg=$('#dg'); const H=RY(5)+NH+30; svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+const defs=el('defs',{},svg);
+const pt=el('pattern',{id:'g',width:28,height:28,patternUnits:'userSpaceOnUse'},defs); el('path',{d:'M28 0H0V28',fill:'none',class:'gl'},pt);
+[['ar-n','var(--muted)'],['ar-on','var(--hi)']].forEach(([id,c])=>{const m=el('marker',{id,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto'},defs);el('path',{d:'M0 1L10 5L0 9z',fill:c},m)});
+el('rect',{width:W,height:H,fill:'url(#g)'},svg);
+const gB=el('g',{},svg),gE=el('g',{},svg),gN=el('g',{},svg),gL=el('g',{},svg);
+// platforms boundary (c1..c3 of row 5)
+const PX=CX(1), PY=RY(5)+11, PW=96, PG=8;
+BND.push({t:'Plataformas',c:'--c-plat',custom:[PX-16,RY(5)-34,7*PW+6*PG+32,NH+50]});
+BND.forEach(b=>{
+  const g=el('g',{class:'bnd',style:`--bc:var(${b.c})`},gB);
+  let x,y,w,h;
+  if(b.custom)[x,y,w,h]=b.custom; else {x=CX(b.cols[0])-16;w=CX(b.cols[1])+NW+16-x;y=RY(b.rows[0])-34;h=RY(b.rows[1])+NH+16-y}
+  el('rect',{x,y,width:w,height:h,rx:12},g); const t=el('text',{x:x+14,y:y+19},g); t.textContent=b.t;
+  b.el=g;
+});
+E.forEach(e=>{
+  e.g=el('g',{},gE); e.p=el('path',{d:e.d,class:'edge'+(e.em?' em':''),'marker-end':'url(#ar-n)'},e.g);
+  const h=el('path',{d:e.d,class:'hit'},e.g);
+  h.addEventListener('mouseenter',()=>{hover=e.id;render()});h.addEventListener('mouseleave',()=>{hover=null;render()});
+  e.lab=el('text',{x:e.lx,y:e.ly,class:'el','text-anchor':e.an},gL); e.lab.textContent=e.t;
+});
+N.forEach(n=>{
+  n.g=el('g',{class:'node',tabindex:0,role:'button','aria-label':n.t+', '+n.f.length+' archivos',style:`--c:var(${layerVar(n.l)})`},gN);
+  el('rect',{x:n.x,y:n.y,width:n.w,height:n.h,rx:8,class:'box'},n.g);
+  const b=el('text',{x:n.x+n.w-9,y:n.y+15,class:'b','text-anchor':'end'},n.g); b.textContent=n.f.length+(n.f.length===1?' archivo':' archivos');
+  const t=el('text',{x:n.x+12,y:n.y+35,class:'t'},n.g); t.textContent=n.t;
+  const s=el('text',{x:n.x+12,y:n.y+51,class:'s'},n.g); s.textContent=n.s;
+  n.g.addEventListener('click',()=>pick(n.id));
+  n.g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();pick(n.id)}});
+});
+const PN=PLAT.map((p,i)=>{const n={id:p[0],l:'plat',t:p[1],s:p[2],plat:1,ghost:p[0]==='web',x:PX+i*(PW+PG),y:PY,w:PW,h:40,in:[],out:[],f:[[p[1],p[2],'']],
+   d:p[0]==='web'?'Web no soportada: Isar no corre en navegador.':p[0]==='apk'?'CompilaciÃ³n de release para Android.':'Carpeta de la plataforma '+p[1]+'.'};
+  nodeById[n.id]=n;
+  n.g=el('g',{class:'node chipn'+(n.ghost?' ghost':''),tabindex:0,role:'button','aria-label':n.t,style:`--c:var(${layerVar('plat')})`},gN);
+  el('rect',{x:n.x,y:n.y,width:n.w,height:n.h,rx:7,class:'box'},n.g);
+  const t=el('text',{x:n.x+n.w/2,y:n.y+25,class:'t','text-anchor':'middle'},n.g); t.textContent=n.t;
+  n.g.addEventListener('click',()=>pick(n.id));
+  n.g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();pick(n.id)}});
+  return n});
+const ALL=[...N,...PN];
+
+// --- state
+let sel=null,view=null,step=0,hover=null,hidden=new Set(),timer=null,seq=null,seqI=0;
+const vObj=()=>VIEWS.find(v=>v.id===view);
+function render(){
+  const v=vObj(); const se=v?v.steps.map(i=>edgeById[i]):[];
+  const vn=new Set(); se.forEach(e=>{vn.add(e.a);vn.add(e.b)});
+  const nb=new Set(); if(sel&&nodeById[sel]){nb.add(sel);nodeById[sel].in.concat(nodeById[sel].out).forEach(e=>{nb.add(e.a);nb.add(e.b)})}
+  ALL.forEach(n=>{let c='node'+(n.plat?' chipn':'')+(n.ghost?' ghost':'');
+    if(hidden.has(n.l))c+=' off'; else if(v){if(!vn.has(n.id))c+=' dim'} else if(sel){if(!nb.has(n.id))c+=' dim'; if(n.id===sel)c+=' sel'}
+    if(v&&n.id===sel)c+=' sel'; n.g.setAttribute('class',c)});
+  E.forEach(e=>{let c='edge'+(e.em?' em':'')+(e.inf?' inf':''),mk='ar-n',lc='el';
+    const off=hidden.has(e.A.l)||hidden.has(e.B.l);
+    if(off){c+=' off';lc+=' off'}
+    else if(v){const i=v.steps.indexOf(e.id); if(i<0){c+=' dimmed';lc+=' dimmed'} else if(i<step){c+=' on';mk='ar-on';lc+=' on'} else if(i===step){c+=' on cur';mk='ar-on';lc+=' on'} else {c+=' next'}}
+    else if(sel){if(e.a===sel||e.b===sel){c+=' on';mk='ar-on';lc+=' on'}else{c+=' dimmed';lc+=' dimmed'}}
+    if(hover===e.id&&!off){c+=' on';mk='ar-on';lc+=' on'}
+    e.p.setAttribute('class',c);e.p.setAttribute('marker-end',`url(#${mk})`);e.lab.setAttribute('class',lc)});
+  E.forEach(e=>{if(/ on/.test(e.p.getAttribute('class')))gE.appendChild(e.g)});
+  document.querySelectorAll('.vchip').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.id===view)));
+  document.querySelectorAll('#legend .chip').forEach(b=>b.setAttribute('aria-pressed',String(!hidden.has(b.dataset.id))));
+  $('#vk').textContent='Vistas guiadas '+(view?VIEWS.findIndex(x=>x.id===view)+1:0)+' / '+VIEWS.length;
+  $('#play').textContent=timer?'âšâš Pausar':'â–¶ Reproducir';
+  dock();
+}
+function lk(e,dir){const n=dir==='out'?e.B:e.A;return `<li><button data-go="${n.id}"><span>${esc(n.t)}</span><em>${esc(e.t)}</em></button></li>`}
+function dock(){
+  const d=$('#dock'),v=vObj(); let h='';
+  if(sel&&nodeById[sel]){
+    const n=nodeById[sel],L=LAYERS.find(l=>l.id===n.l);
+    h+=`<div class="row" style="--c:var(${L.c})"><span class="badge"><i></i>${esc(L.short)}</span><button class="btn" data-a="close" style="margin-left:auto">Cerrar</button></div><h2>${esc(n.t)}</h2><p>${esc(n.d)}</p><div class="cols">`;
+    h+=`<div><h3>Archivos (${n.f.length})</h3><ul class="files">${n.f.map(f=>`<li><b>${esc(f[0])}</b><code>${esc(f[1])}</code>${f[2]?`<span>${esc(f[2])}</span>`:''}</li>`).join('')}</ul></div>`;
+    if(n.in.length)h+=`<div><h3>Recibe de (${n.in.length})</h3><ul class="lk">${n.in.map(e=>lk(e,'in')).join('')}</ul></div>`;
+    if(n.out.length)h+=`<div><h3>Llama a (${n.out.length})</h3><ul class="lk">${n.out.map(e=>lk(e,'out')).join('')}</ul></div>`;
+    h+='</div>';
+  } else if(v){
+    h+=`<div class="row"><h2>${esc(v.label)}</h2><span class="muted" style="margin-left:auto;font-family:var(--mono);font-size:12px">paso ${step+1} de ${v.steps.length}</span></div><p>${esc(v.note)}</p>`;
+    h+=`<div class="steps">${v.steps.map((id,i)=>{const e=edgeById[id];return `<button data-s="${i}" class="${i<step?'done':''}" ${i===step?'aria-current="step"':''}>${i+1} Â· ${esc(e.A.t)} â†’ ${esc(e.B.t)}</button>`}).join('')}</div>`;
+    h+=`<div class="row"><button class="btn" data-a="prev">Anterior</button><button class="btn" data-a="next">Siguiente</button><button class="btn" data-a="close">Salir de la vista</button></div>`;
+  } else {
+    h+=`<h3>CÃ³mo usarlo</h3><p class="muted">Elige una vista guiada arriba o pulsa Reproducir para recorrer el sistema. Toca una caja para ver los archivos que agrupa y con quiÃ©n se conecta. Pasa el cursor por una lÃ­nea para resaltarla.</p>`;
+  }
+  d.innerHTML=h;
+}
+function pick(id){stopPlay();view=null;sel=(sel===id?null:id);render()}
+function setView(id){stopPlay();sel=null;view=(view===id?null:id);step=0;render()}
+function stopPlay(){if(timer){clearInterval(timer);timer=null}seq=null}
+function play(){
+  if(timer){stopPlay();render();return}
+  sel=null; seq=[]; VIEWS.forEach(v=>v.steps.forEach((s,i)=>seq.push([v.id,i]))); seqI=0;
+  const go=()=>{const s=seq[seqI];view=s[0];step=s[1];render()}; go();
+  timer=setInterval(()=>{seqI++; if(seqI>=seq.length){stopPlay();render();return} go()},1400);
+  render();
+}
+// --- controls
+VIEWS.forEach((v,i)=>{const b=document.createElement('button');b.className='vchip';b.dataset.id=v.id;b.setAttribute('aria-pressed','false');b.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span>${esc(v.label)}</span>`;b.onclick=()=>setView(v.id);$('#vchips').appendChild(b)});
+LAYERS.forEach(L=>{const b=document.createElement('button');b.className='chip';b.dataset.id=L.id;b.style.setProperty('--c',`var(${L.c})`);b.innerHTML='<i></i>'+esc(L.short);b.setAttribute('aria-pressed','true');b.onclick=()=>{hidden.has(L.id)?hidden.delete(L.id):hidden.add(L.id);render()};$('#legend').insertBefore(b,$('#legend .leg2'))});
+$('#play').onclick=play;
+$('#fit').onclick=e=>{const b=e.currentTarget,on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(on));$('#stage').classList.toggle('fit',on)};
+$('#theme').onclick=()=>{const r=document.documentElement;const cur=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');r.setAttribute('data-theme',cur==='dark'?'light':'dark');lbl()};
+function lbl(){const r=document.documentElement;const cur=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');$('#theme').textContent=cur==='dark'?'â˜¾ Oscuro':'â˜€ Claro'}
+$('#present').onclick=()=>{const on=!document.body.classList.contains('present');document.body.classList.toggle('present',on);$('#present').textContent=on?'Salir':'Presentar';
+  try{if(on&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(_){}};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){stopPlay();sel=null;view=null;document.body.classList.remove('present');$('#present').textContent='Presentar';render()}});
+$('#dock').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.go){stopPlay();view=null;sel=t.dataset.go;render();return}
+  if(t.dataset.s!==undefined){stopPlay();step=+t.dataset.s;render();return}
+  const a=t.dataset.a,v=vObj();
+  if(a==='close'){stopPlay();sel=null;view=null;render()}
+  else if(a==='next'&&v){stopPlay();step=Math.min(v.steps.length-1,step+1);render()}
+  else if(a==='prev'&&v){stopPlay();step=Math.max(0,step-1);render()}});
+lbl(); render();
+})();
+</script>
+
+</body></html>
