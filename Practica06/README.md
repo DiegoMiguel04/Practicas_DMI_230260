@@ -33,7 +33,7 @@ Riverpod conecta la interfaz con los repositorios. Dio consulta The Movie Databa
 Los favoritos se guardan con Isar en plataformas nativas y con WebStorage respaldado por SharedPreferences en web. SharedPreferences también conserva preferencias como el idioma.
 
 ## Appetize
-[Ir a la simulacion en Appetize](#)
+[Ir a la simulacion en Appetize](https://appetize.io/app/b_khh5z6srvjt3fwi6yddqvi5xbe)
 
 ## Diagrama de arquitectura
 
