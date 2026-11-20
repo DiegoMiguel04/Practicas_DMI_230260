@@ -41,6 +41,9 @@ Los favoritos se guardan con Isar en plataformas nativas y con WebStorage respal
 
 ![Vista del diagrama de arquitectura](images/arquitectura.png)
 
+## APK de la App
+[Ir al APK de la aplicación](https://diegomiguel04.github.io/Practicas_DMI_230260/Practica06/app-release.apk)
+
 ## Requisitos
 
 - Flutter SDK compatible con Dart `^3.10.0` (ver `environment` en `pubspec.yaml`).
