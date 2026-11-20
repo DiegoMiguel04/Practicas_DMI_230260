@@ -1,7 +1,6 @@
 import 'package:cinemapedia/domain/entities/actor.dart';
 import 'package:cinemapedia/presentation/providers/actors/actors_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 
 final actorsByMovieProvider = StateNotifierProvider<ActorsByMovieNotifier, Map<String, List<Actor>>>((ref) {
   final actorsRepository = ref.watch( actorsRepositoryProvider );
@@ -34,6 +33,7 @@ class ActorsByMovieNotifier extends StateNotifier<Map<String,List<Actor>>> {
     if ( state[movieId] != null ) return;
 
     final List<Actor> actors = await getActors( movieId );
+    if ( !mounted ) return;
     state = { ...state, movieId: actors };
   }
 

@@ -1,17 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/presentation/providers/providers.dart';
-import 'package:flutter_riverpod/legacy.dart';
 
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
 final searchedMoviesProvider = StateNotifierProvider<SearchedMoviesNotifier, List<Movie>>((ref) {
 
-  final movieRepository = ref.read( movieRepositoryProvider );
+  final movieRepository = ref.watch( movieRepositoryProvider );
+  final isSeries = ref.watch( catalogTypeProvider ) == CatalogType.series;
 
+  // Busca películas o series según el catálogo que se está viendo
   return SearchedMoviesNotifier(
-    searchMovies: movieRepository.searchMovies, 
+    searchMovies: isSeries ? movieRepository.searchSeries : movieRepository.searchMovies,
     ref: ref
   );
 });
